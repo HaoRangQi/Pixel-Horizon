@@ -53,24 +53,36 @@ export function createCar({ color = 0xe02028 } = {}) {
   const instruments = createInstruments(cabinMaterials);
   cabin.add(steering.root, instruments.root);
   // Soft cabin fill: skylight entering the greenhouse plus spill from the display.
-  // Both live under `cabin`, so they only light the scene while the cockpit view is active.
-  const cabinAmbient = new THREE.AmbientLight(0x9aabb9, 0.42);
+  // The rig stays in the scene at all times (only its intensity changes) so the number of
+  // lights is constant; otherwise the first cockpit switch recompiles every shader on the fly.
+  const lightRig = new THREE.Group();
+  lightRig.name = 'cockpitLightRig';
+  root.add(lightRig);
+  const cabinAmbient = new THREE.AmbientLight(0x9aabb9, 0);
   cabinAmbient.name = 'cockpitAmbientLight';
-  cabin.add(cabinAmbient);
-  const cabinFill = new THREE.PointLight(0xe0e6ea, 1.05, 2.6, 2);
+  lightRig.add(cabinAmbient);
+  const cabinFill = new THREE.PointLight(0xe0e6ea, 0, 2.6, 2);
   cabinFill.name = 'cockpitFillLight';
   cabinFill.position.set(0.345, 1.06, 0.26);
-  cabin.add(cabinFill);
-  const clusterGlow = new THREE.PointLight(0x9fd8da, 0.5, 0.9, 2);
+  lightRig.add(cabinFill);
+  const clusterGlow = new THREE.PointLight(0x9fd8da, 0, 0.9, 2);
   clusterGlow.name = 'clusterGlowLight';
   clusterGlow.position.set(0.345, 0.82, 0.46);
-  cabin.add(clusterGlow);
+  lightRig.add(clusterGlow);
+  const cabinBase = { ambient: 0.42, fill: 1.05, glow: 0.5 };
+  let cabinInside = false;
+  function applyCabinLights() {
+    cabinAmbient.intensity = cabinInside ? cabinBase.ambient : 0;
+    cabinFill.intensity = cabinInside ? cabinBase.fill : 0;
+    clusterGlow.intensity = cabinInside ? cabinBase.glow : 0;
+  }
   function setMood(name) {
     const sunset = name === 'sunset';
     cabinAmbient.color.setHex(sunset ? 0xc2b0a2 : 0x9aabb9);
-    cabinAmbient.intensity = sunset ? 0.34 : 0.42;
     cabinFill.color.setHex(sunset ? 0xffd9b6 : 0xe0e6ea);
-    cabinFill.intensity = sunset ? 0.85 : 1.05;
+    cabinBase.ambient = sunset ? 0.34 : 0.42;
+    cabinBase.fill = sunset ? 0.85 : 1.05;
+    applyCabinLights();
   }
   setMood('day');
   body.add(cabin);
@@ -99,6 +111,8 @@ export function createCar({ color = 0xe02028 } = {}) {
     if (mode === view) return;
     view = mode;
     const inside = mode === 'cockpit';
+    cabinInside = inside;
+    applyCabinLights();
     materials.glass.transparent = inside;
     materials.glass.opacity = inside ? 0.035 : 1;
     materials.glass.depthWrite = !inside;
@@ -106,7 +120,7 @@ export function createCar({ color = 0xe02028 } = {}) {
     cabin.visible = inside;
   }
 
-  function update(dt, { speed = 0, steer = 0, throttle = 0, brake = 0, time = 0, rpm = 0, gear = 'N', fuel = 1, coolant = 20, odometer = 0, turnSignal = 0 } = {}) {
+  function update(dt, { speed = 0, steer = 0, steerVisual = null, throttle = 0, brake = 0, time = 0, rpm = 0, gear = 'N', fuel = 1, coolant = 20, odometer = 0, turnSignal = 0 } = {}) {
     spin = (spin + speed * dt / WHEEL_RADIUS) % TAU;
     const turn = THREE.MathUtils.clamp(steer, -1, 1);
     const ease = 1 - Math.exp(-dt * 10);
@@ -120,7 +134,7 @@ export function createCar({ color = 0xe02028 } = {}) {
       wheel.userData.rolling.rotation.x = spin;
     }
     // Seen from the driver's seat, a right turn rotates the wheel clockwise.
-    steering.wheel.rotation.z = turn * 1.1;
+    steering.wheel.rotation.z = THREE.MathUtils.clamp(steerVisual ?? steer, -1, 1) * 1.1;
     materials.taillight.emissiveIntensity = 1.1 + brake * 2.4;
     instruments.update(dt, { speed, rpm, gear, fuel, coolant, odometer, turnSignal, time });
   }

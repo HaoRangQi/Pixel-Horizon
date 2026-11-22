@@ -10,7 +10,8 @@
     "test": "node --test tests/*.test.js",
     "verify:browser": "node tools/verify-playable.mjs",
     "verify:instruments": "node tools/verify-instruments.mjs",
-    "verify:standalone": "node tools/verify-standalone.mjs"
+    "verify:standalone": "node tools/verify-standalone.mjs",
+    "verify:cruise": "node tools/verify-cruise.mjs"
   },
   "dependencies": {
     "three": "^0.187.0"

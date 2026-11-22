@@ -6,7 +6,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createWorld } from './world.js';
 import { createCar } from './car.js';
 import { createCameraRig } from './camera.js';
-import { createDriver, stepDriver, resetDriver, followRoad } from './drive.js';
+import { angleDelta, createDriver, stepDriver, resetDriver, followRoad } from './drive.js';
 import { readDrivingInput } from './input.js';
 import { createUI } from './ui.js';
 import { DriveAudio } from './audio.js';
@@ -67,6 +67,7 @@ function boot() {
   let lastFrame = performance.now();
   let accumulator = 0;
   let time = 0;
+  let steerVisual = 0;
   let hudTime = 0;
   let fpsTime = 0;
   let fpsFrames = 0;
@@ -194,8 +195,9 @@ function boot() {
 
   function resize() {
     const w = innerWidth; const h = innerHeight;
-    const cockpit = rig.mode === 2;
-    const scale = Math.min(1, (cockpit ? 1600 : 1280) / w, (cockpit ? 1000 : 900) / h);
+    // One render scale for every camera: switching into the cockpit used to resize the
+    // composer and reallocate its targets mid-drive, which showed up as a freeze.
+    const scale = Math.min(1, 1280 / w, 900 / h);
     renderer.setSize(Math.max(1, Math.floor(w * scale)), Math.max(1, Math.floor(h * scale)), false);
     composer.setSize(Math.max(1, Math.floor(w * scale)), Math.max(1, Math.floor(h * scale)));
     canvas.style.width = '100%'; canvas.style.height = '100%';
@@ -256,7 +258,15 @@ function boot() {
         resetDriver(state, road, state.t); rig.reset(); ui.toast('已经帮你回到公路');
       }
     } else accumulator = 0;
-    vehicle.update(running ? dt : 0, { speed: state.speed, steer: state.steer, throttle: state.throttle, brake: state.brake,
+    // Pure-pursuit cruise only needs a few degrees of lock on these long bends, which reads as a
+    // frozen wheel from the driver's seat. Feed the visual wheel a curvature term so the hands move.
+    const bendNear = road.sample(wrap(state.t + 6 / road.length));
+    const bendFar = road.sample(wrap(state.t + 48 / road.length));
+    const bend = -angleDelta(bendFar.heading, bendNear.heading);
+    // A 42 m look-ahead lets the hands turn in before the bend, like a real driver's eyes do.
+    const wheelTarget = running ? (state.cruise ? clamp(bend * 2.4 + state.steer, -0.9, 0.9) : state.steer) : 0;
+    steerVisual += (wheelTarget - steerVisual) * (1 - Math.exp(-14 * dt));
+    vehicle.update(running ? dt : 0, { speed: state.speed, steer: state.steer, steerVisual, throttle: state.throttle, brake: state.brake,
       time, rpm: state.rpm, gear: state.gear, fuel: state.fuel, coolant: state.coolant,
       odometer: state.odometer, turnSignal: state.turnSignal });
     placeCar();
@@ -283,6 +293,20 @@ function boot() {
       t: state.t, cruise: state.cruise, draws: renderer.info.render.calls, triangles: renderer.info.render.triangles }; },
   };
   window.__horizon = game;
+  renderer.compile(scene, camera);
+  // Compile and draw the interior once behind the loading screen. Without this the
+  // first C press pays for every cabin shader and the cockpit shadow pass in one frame.
+  const savedPosition = camera.position.clone(), savedQuaternion = camera.quaternion.clone(), savedFov = camera.fov;
+  vehicle.setView('cockpit');
+  vehicle.root.updateMatrixWorld(true);
+  vehicle.cockpitCamera.getWorldPosition(camera.position);
+  vehicle.cockpitCamera.getWorldQuaternion(camera.quaternion);
+  camera.fov = 66; camera.updateProjectionMatrix();
+  renderer.compile(scene, camera);
+  renderer.render(scene, camera);
+  camera.position.copy(savedPosition); camera.quaternion.copy(savedQuaternion);
+  camera.fov = savedFov; camera.updateProjectionMatrix();
+  vehicle.setView('chase');
   renderer.compile(scene, camera);
   ui.ready();
 }

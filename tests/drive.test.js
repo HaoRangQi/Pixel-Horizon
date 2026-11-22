@@ -106,7 +106,7 @@ test('reset returns to the requested road point with matching heading and stoppe
   assert.equal(state.heading, 0);
 });
 
-test('scenic cruise follows the route and yields to a manual brake', () => {
+test('scenic cruise holds the right-hand lane and yields to a manual brake', () => {
   const state = createDriver(road);
   state.cruise = true;
   for (let i = 0; i < 600; i++) {
@@ -114,7 +114,11 @@ test('scenic cruise follows the route and yields to a manual brake', () => {
     stepDriver(state, controls, 1 / 120, road);
   }
   assert.ok(state.speed > 12);
-  assert.ok(Math.abs(state.x) < 0.5);
+  // Left-hand-drive, right-hand traffic: the aim point sits a quarter of the road width
+  // to the driver's right (-X here), so the car must never sit on the painted centreline.
+  const lane = road.width * 0.25;
+  assert.ok(state.x < -lane * 0.8, `cruise settled at x=${state.x.toFixed(2)}, lane centre is -${lane}`);
+  assert.ok(Math.abs(state.x + lane) < lane * 0.35, 'cruise settles near the right-lane centre');
   stepDriver(state, { brake: 1, manual: true }, 1 / 120, road);
   assert.equal(state.cruise, false);
 });

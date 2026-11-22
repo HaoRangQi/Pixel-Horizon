@@ -62,7 +62,11 @@ export function followRoad(state, road, targetSpeed = 22) {
   const lookahead = 9 + Math.abs(state.speed) * 0.95;
   const ahead = road.sample(wrap(state.t + lookahead / road.length));
   const next = road.sample(wrap(state.t + (lookahead + 36) / road.length));
-  const desired = Math.atan2(ahead.position.x - state.x, ahead.position.z - state.z);
+  // Right-hand traffic: aim for the centre of the right-hand lane, never the painted centreline.
+  const lane = road.width * 0.25;
+  const laneX = ahead.position.x - Math.cos(ahead.heading) * lane;
+  const laneZ = ahead.position.z + Math.sin(ahead.heading) * lane;
+  const desired = Math.atan2(laneX - state.x, laneZ - state.z);
   const bend = Math.abs(angleDelta(next.heading, ahead.heading));
   const wanted = targetSpeed / (1 + bend * 3.4);
   const error = wanted - state.speed;

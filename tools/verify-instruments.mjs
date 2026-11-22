@@ -65,7 +65,7 @@ try {
       sum += 0.2126 * pixels[i] + 0.7152 * pixels[i + 1] + 0.0722 * pixels[i + 2]; count++;
     }
     const lights = [];
-    game.vehicle.root.getObjectByName('cockpitInterior').traverse((o) => { if (o.isLight) lights.push(o.name); });
+    game.vehicle.root.traverse((o) => { if (o.isLight && o.intensity > 0) lights.push(o.name); });
     return { meanLuminance: sum / count, lights };
   });
   assert.ok(interior.meanLuminance > 45, 'cockpit interior must be lit by the cabin fill, not a black frame');
