@@ -16,7 +16,7 @@
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 14.804579550985896
+    "fps": 8.8434705704808
   },
   "coupe": {
     "style": "coupe",
@@ -34,7 +34,7 @@
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 40.967226216096925
+    "fps": 39.377830283399966
   },
   "mirror": {
     "width": 768,
@@ -60,7 +60,7 @@
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 60.13999803102408
+    "fps": 59.89219405355949
   },
   "back": {
     "style": "one",
@@ -73,12 +73,12 @@
       "mode": "E-PERFORMANCE"
     },
     "caption": "AMG ONE",
-    "speed": 28.03878082376732,
+    "speed": 28.650217171592967,
     "gear": 4,
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 51.18110236220473
+    "fps": 60.06301693439148
   },
   "errors": []
 }

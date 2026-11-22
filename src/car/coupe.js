@@ -142,50 +142,49 @@ export function createCoupeGeometry() {
   add('black', tube([[-0.66, 0.94, 0.60], [-0.34, 0.95, 0.61], [0, 0.952, 0.61], [0.34, 0.95, 0.61], [0.66, 0.94, 0.60]], 0.011, 44));
   add('black', tube([[-0.70, 1.02, -1.13], [-0.35, 1.035, -1.14], [0, 1.04, -1.14], [0.35, 1.035, -1.14], [0.70, 1.02, -1.13]], 0.010, 40));
 
+  // Rounded nose face: the body skin stops at the shoulder line, so this painted panel
+  // closes the front between the splitter and the bonnet edge. Everything on the nose is
+  // placed on noseZ() so no trim can float outside the body.
+  const noseZ = (x) => 2.398 - (Math.abs(x) / 0.74) ** 2 * 0.085;
+  add('paint', grid((u, v) => {
+    const x = mix(-0.705, 0.705, u), top = 0.705 - (Math.abs(x) / 0.74) ** 2 * 0.045;
+    return [x, mix(0.235, top, v), noseZ(x) - v * 0.012];
+  }, 44, 12, [0, 0, 1]));
+
   // Twin-kidney grille: deep black mesh, chrome surrounds and vertical louvres.
   for (const side of [-1, 1]) {
-    const cx = side * 0.205;
-    add('black', roundedBox([0.315, 0.395, 0.035], [cx, 0.585, 2.352], [0.06, 0, 0], 0.028));
-    const ring = roundedOutline(0.315, 0.395, 0.14, 30);
-    add('silver', tube(ring.map(([x, y]) => [cx + x, 0.585 + y, 2.371 + y * 0.04]), 0.0045, 44, true, 5));
-    for (let i = 0; i < 7; i++) {
-      const x = cx - 0.128 + i * 0.0427;
-      add('grille', box([0.012, 0.35, 0.016], [x, 0.585, 2.345], [0.06, 0, 0]));
+    const cx = side * 0.175;
+    add('black', roundedBox([0.285, 0.315, 0.032], [cx, 0.475, noseZ(cx) + 0.006], [0.04, 0, 0], 0.024));
+    const ring = roundedOutline(0.285, 0.315, 0.11, 30);
+    add('silver', tube(ring.map(([x, y]) => [cx + x, 0.475 + y, noseZ(cx + x) + 0.027]), 0.0042, 40, true, 5));
+    for (let i = 0; i < 6; i++) {
+      const x = cx - 0.106 + i * 0.0424;
+      add('grille', box([0.011, 0.278, 0.014], [x, 0.475, noseZ(x) + 0.024], [0.04, 0, 0]));
     }
-    add('black', roundedBox([0.315, 0.03, 0.02], [cx, 0.585, 2.344], [0.06, 0, 0], 0.01));
   }
-  // Narrow nose bridge and the surrounding black lower grille.
-  add('paint', roundedBox([0.055, 0.36, 0.05], [0, 0.585, 2.355], [0.06, 0, 0], 0.02));
+  // Narrow body-colour bridge between the kidneys, plus the lower air intake.
+  add('paint', roundedBox([0.05, 0.30, 0.045], [0, 0.475, noseZ(0) + 0.012], [0.04, 0, 0], 0.018));
   add('black', grid((u, v) => {
-    const x = mix(-0.62, 0.62, u), y = mix(0.255, 0.375, v);
-    return [x, y, 2.40 - Math.abs(x) * 0.06 - v * 0.02];
+    const x = mix(-0.50, 0.50, u), y = mix(0.262, 0.322, v);
+    return [x, y, noseZ(x) + 0.016];
   }, 30, 4, [0, 0, 1]));
-  for (let i = -7; i <= 7; i++) add('grille', box([0.012, 0.115, 0.014], [i * 0.085, 0.315, 2.386 - Math.abs(i * 0.085) * 0.06], [0.1, 0, 0]));
+  for (let i = -6; i <= 6; i++) add('grille', box([0.011, 0.05, 0.012], [i * 0.074, 0.292, noseZ(i * 0.074) + 0.024], [0.04, 0, 0]));
 
-  // Quad headlamps: two crisp LED blades per side under a smoked housing.
+  // Quad headlamps: two crisp LED blades per side inside a smoked housing on the nose face.
   for (const side of [-1, 1]) {
     add('lightHousing', grid((u, v) => {
-      const x = mix(0.545, 0.905, u), y = mix(0.745, 0.815, v);
-      return [side * x, y, 2.372 - Math.abs(x - 0.72) * 0.1 - v * 0.025];
+      const x = mix(0.335, 0.655, u), y = mix(0.545, 0.635, v);
+      return [side * x, y, noseZ(x) + 0.019];
     }, 18, 6, [0, 0, 1]));
-    add('led', tube([[0.585, 0.792], [0.705, 0.788], [0.885, 0.775]].map(([x, y]) => [side * x, y, 2.386 - Math.abs(x - 0.72) * 0.1]), 0.0055, 34, false, 6));
-    add('led', tube([[0.585, 0.766], [0.705, 0.762], [0.878, 0.751]].map(([x, y]) => [side * x, y, 2.386 - Math.abs(x - 0.72) * 0.1]), 0.0048, 34, false, 6));
-    // Bonnet edge wraps over the lamp instead of hanging in front of it.
-    add('paint', grid((u, v) => {
-      const x = mix(0.545, 0.912, u);
-      const surface = topPoint(front, side * x, 2.30, 0.004);
-      return [side * x, mix(surface[1], 0.775, v ** 1.6), 2.372 - v * 0.02];
-    }, 18, 4, [0, 1, 0]));
-    // Front corner air curtain and a short carbon dive plane, both hugging the bumper skin.
-    add('black', roundedBox([0.075, 0.15, 0.03], [side * 0.705, 0.40, 2.322], [0.1, 0, side * 0.15], 0.018));
-    add('carbon', grid((u, v) => {
-      const x = mix(0.60, 0.745, v), z = mix(2.352, 2.24, u);
-      return [side * x, 0.295 + (1 - u) * 0.028 + Math.sin(v * Math.PI) * 0.006, z - v * 0.03];
-    }, 14, 7, [0, 1, 0]));
+    for (const [dy, radius] of [[0.598, 0.005], [0.566, 0.0043]]) {
+      add('led', tube([0.352, 0.45, 0.54, 0.638].map((x) => [side * x, dy + (x - 0.35) * 0.02, noseZ(x) + 0.026]), radius, 30, false, 6));
+    }
+    // Front corner air curtain tucked into the lower nose.
+    add('black', roundedBox([0.06, 0.10, 0.03], [side * 0.615, 0.40, noseZ(0.615) + 0.004], [0.05, 0, side * 0.1], 0.014));
   }
   add('carbon', grid((u, v) => {
-    const x = mix(-0.86, 0.86, u);
-    return [x, 0.205 + Math.sin(v * Math.PI) * 0.012, 2.43 - v * 0.15 - Math.abs(x) * 0.02];
+    const x = mix(-0.80, 0.80, u);
+    return [x, 0.205 + Math.sin(v * Math.PI) * 0.012, 2.452 - v * 0.15 - Math.abs(x) ** 2 * 0.03];
   }, 44, 5, [0, 1, 0]));
 
   // Cabin trim: a dark inner shell hides the body-colour skin from the driver's seat.
@@ -214,6 +213,13 @@ export function createCoupeGeometry() {
     const x = mix(-0.68, 0.68, u);
     return [x, mix(0.66, 0.90, v), mix(-0.90, -1.05, v)];
   }, 26, 6, [0, 0, 1]));
+  // Scuttle: a dark panel bridges the dash top to the screen base so the bonnet's
+  // body-colour surface is never visible as a green strip from the driver's seat.
+  add('black', grid((u, v) => {
+    const x = mix(-0.76, 0.76, u), [, , edge] = sampleSections(sides, 0.60);
+    const top = Math.min(edge, 0.95) - (x / 0.78) ** 2 * 0.02;
+    return [x, mix(0.66, top, v), mix(0.63, 0.60, v)];
+  }, 40, 6, [0, 1, 0]));
   // Cowl vent grille and wipers at the base of the screen.
   add('carbonMatte', grid((u, v) => {
     const x = mix(-0.58, 0.58, u);
@@ -253,7 +259,6 @@ export function createCoupeGeometry() {
     add('taillight', tube([[side * 0.37, 0.842, -2.383], [side * 0.62, 0.835, -2.386], [side * 0.75, 0.81, -2.379], [side * 0.73, 0.745, -2.373]], 0.011, 40, false, 8));
     add('taillight', tube([[side * 0.40, 0.792, -2.379], [side * 0.66, 0.786, -2.382]], 0.0055, 24, false, 6));
     add('paint', tube([[side * 0.905, 0.82, -2.30], [side * 0.94, 0.62, -2.27], [side * 0.905, 0.37, -2.27]], 0.03, 32));
-    add('carbon', rod([side * 0.88, 0.80, -2.34], [side * 0.93, 0.98, -2.30], 0.006, 8));
     for (const dx of [-0.115, 0.115]) {
       add('darkMetal', cylinder(0.047, 0.09, [side * 0.34 + dx, 0.30, -2.395], [Math.PI / 2, 0, 0], 26));
       add('black', cylinder(0.038, 0.012, [side * 0.34 + dx, 0.30, -2.443], [Math.PI / 2, 0, 0], 24));
