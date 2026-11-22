@@ -28,6 +28,17 @@ HUD caption follow the active car; opponents in the sprint borrow whichever styl
 is not driving. At load both shells are built once and share the same materials, so the swap
 costs a visibility toggle rather than a rebuild.
 
+Each style also brings its own cockpit pair, built once up front and mounted under
+`cockpitInterior` only while that style is active (`coupeCabin.js` for the coupe). The coupe
+gets a round three-spoke M Sport wheel (thick 9-and-3 grips, red M1/M2 buttons, silver trim,
+slanted `///M` hub badge on a canvas texture) and a twin-dial cluster: speed dial left, rpm
+dial right with redline and nine shift lights, `///M` header, centre gear, digital readouts,
+fuel and coolant bars. The AMG ONE keeps its squared-off wheel and wide split display.
+`getObjectByName('steeringWheel')` / `('liveInstrumentCluster')` always resolve to the active
+car because the inactive mount is detached from the cabin. Both clusters share the same
+`update(dt, data)` contract in `car.js`, so driving state, garage swaps and screenshots need
+no per-style branches.
+
 ## Mirrors
 
 `mirrors.js` renders one 768 × 192 rear panorama (62° horizontal FOV, 30 Hz) and maps three
@@ -53,3 +64,11 @@ view. Anything that changes the door-pod position must update `mirrors` in the s
 With the Vite server running, open `/src/car/preview.html` for the isolated vehicle workshop. It uses an outdoor environment, ground shadow, and light strengths matching the main daytime scene. Front, side, rear, cabin, high-speed state, and sunset controls are independent of the shared game page.
 
 `node src/car/check.mjs` checks finite geometry, dimensions, positive-left cockpit placement, right-turn wheel yaw, speed-dependent angle reduction, stable root/pivots, shared geometry, input-driven readings, and clear forward cockpit rays. Final QA images are under `src/car/qa/`. Static and high-speed instrument images use explicitly different source states; the preview scenarios are separate from the game's mechanics.
+
+**Never pass a Three.js object to `assert.equal` / `assert.deepEqual`.** On failure Node
+builds a full inspection diff of the value — for a scene object that walks circular `parent`
+back-references, every buffer attribute and every texture. This once grew a single `node`
+process past 10 GB in under twenty seconds and froze the machine (it looks like a runaway
+leak but is pure assertion formatting; `--max-old-space-size` cannot cap it because the
+memory is off-heap). Compare booleans or membership instead, as `check.mjs` does with its
+`same` / `differs` helpers and `cabin.children.includes(...)`.

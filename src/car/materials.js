@@ -58,5 +58,38 @@ export function createMaterials(color) {
     accent: standard(0x68d5cf, 0.34, 0.5),
     mirror: standard(0xb1c7ce, 0.08, 0.98),
     screenBlack: new THREE.MeshBasicMaterial({ color: 0x03080c }),
+    // M-sport tricolour for the coupe's wheel badge and stitching.
+    mSportLight: standard(0x2b87d8, 0.35, 0.4),
+    mSportDark: standard(0x123a8a, 0.35, 0.4),
+    mSportRed: standard(0xd0182b, 0.35, 0.4),
+    hubBadge: new THREE.MeshBasicMaterial({ map: badgeTexture(), toneMapped: false }),
   };
+}
+
+// Steering-wheel hub badge: tricolour slashes over a roundel. A 256 px canvas keeps the
+// marks readable at cockpit distance where sub-millimetre extruded bars turn to mush.
+let badgeMap;
+function badgeTexture() {
+  if (typeof document === 'undefined') return null;
+  if (badgeMap) return badgeMap;
+  const size = 256, canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const dark = '#10161c';
+  // Original M-sport mark: slanted tricolour over a single letter, not any real roundel.
+  ctx.fillStyle = dark; ctx.fillRect(0, 0, size, size);
+  const cx = size / 2;
+  const bars = [['#2b87d8', cx - 66], ['#123a8a', cx - 22], ['#d0182b', cx + 22]];
+  for (const [color, x] of bars) {
+    ctx.fillStyle = color; ctx.beginPath();
+    ctx.moveTo(x, 46); ctx.lineTo(x + 38, 46); ctx.lineTo(x + 16, 132); ctx.lineTo(x - 22, 132); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle = '#e8eef2'; ctx.font = '700 62px Arial,sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('M4', cx, 212);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  texture.needsUpdate = true;
+  badgeMap = texture;
+  return texture;
 }

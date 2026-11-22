@@ -2,6 +2,13 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { createCar } from '../car.js';
 
+// Never hand a Three.js object to assert.equal/deepEqual. When such a comparison fails,
+// Node builds an inspection diff of the whole scene graph (parent back-references, every
+// buffer attribute, every texture) — that spun a single node process past 10 GB in under
+// twenty seconds and froze the machine once. Compare booleans instead.
+const same = (a, b, message) => assert.ok(a === b, message);
+const differs = (a, b, message) => assert.ok(a !== b, message);
+
 const car = createCar(), second = createCar({ color: 0x6a9daa });
 let meshes = 0, triangles = 0;
 const unique = new Set();
@@ -22,9 +29,9 @@ for (const wheel of car.wheels) {
   const bounds = new THREE.Box3().setFromObject(wheel, true);
   assert.ok(Math.abs(bounds.min.y) < 0.00001, `${wheel.name} contacts Y=0`);
 }
-assert.equal(car.body.getObjectByName('car-one-paint').geometry, second.body.getObjectByName('car-one-paint').geometry);
-assert.equal(car.body.getObjectByName('car-coupe-paint').geometry, second.body.getObjectByName('car-coupe-paint').geometry);
-assert.equal(car.wheels[0].userData.rolling.children[0].geometry, second.wheels[0].userData.rolling.children[0].geometry);
+same(car.body.getObjectByName('car-one-paint').geometry, second.body.getObjectByName('car-one-paint').geometry, 'hypercar shell geometry is shared');
+same(car.body.getObjectByName('car-coupe-paint').geometry, second.body.getObjectByName('car-coupe-paint').geometry, 'coupe shell geometry is shared');
+same(car.wheels[0].userData.rolling.children[0].geometry, second.wheels[0].userData.rolling.children[0].geometry, 'wheel geometry is shared between cars');
 const pivotPositions = car.wheels.map(wheel => wheel.position.toArray());
 car.root.position.set(12, 7, -31);
 car.root.rotation.y = 0.74;
@@ -52,8 +59,20 @@ for (const x of [-0.2, 0, 0.2]) {
   assert.equal(opaque.length, 0, `cockpit road sightline ${x}`);
 }
 assert.equal(car.body.getObjectByName('cockpitInterior').visible, true);
+const oneWheel = car.body.getObjectByName('steeringWheel'), oneCluster = car.body.getObjectByName('liveInstrumentCluster');
 car.setStyle('coupe');
 assert.ok(car.body.getObjectByName('body-coupe').visible && !car.body.getObjectByName('body-one').visible);
+// The coupe cockpit is a separate build, not the AMG's wheel with a new badge.
+const coupeWheel = car.body.getObjectByName('steeringWheel'), coupeCluster = car.body.getObjectByName('liveInstrumentCluster');
+differs(coupeWheel, oneWheel, 'coupe steering wheel replaces the AMG wheel');
+differs(coupeCluster, oneCluster, 'coupe cluster replaces the AMG display');
+differs(coupeWheel.children[0].geometry, oneWheel.children[0].geometry, 'coupe rim uses its own geometry');
+const screenMaterial = (cluster) => cluster.children.find((o) => o.geometry?.type === 'PlaneGeometry')?.material;
+differs(screenMaterial(coupeCluster), screenMaterial(oneCluster), 'coupe cluster draws to its own surface');
+const cabinGroup = car.body.getObjectByName('cockpitInterior');
+assert.ok(!cabinGroup.children.includes(oneWheel.parent), 'the AMG cockpit mount leaves the cabin while the coupe is active');
+assert.ok(cabinGroup.children.includes(coupeWheel.parent) && cabinGroup.children.includes(coupeCluster), 'the coupe cockpit mounts hang under the cabin');
+assert.deepEqual(coupeCluster.userData.readings.brand, { header: 'M  //  PERFORMANCE', sub: 'HORIZON M4', mode: 'SPORT' });
 car.root.updateMatrixWorld(true);
 for (const x of [-0.2, 0, 0.2]) {
   const ray = new THREE.Raycaster(eye, new THREE.Vector3(x, -0.035, 1).normalize(), 0.02, 8);

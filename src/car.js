@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { FRONT_AXLE, REAR_AXLE, WHEEL_RADIUS } from './car/exterior.js';
 import { createSteering } from './car/cabin.js';
 import { BODY_ORDER, BODY_STYLES, sharedCabinGeometry } from './car/bodies.js';
+import { createCoupeInstruments, createCoupeSteering } from './car/coupeCabin.js';
 import { createInstruments } from './car/instruments.js';
 import { createMaterials } from './car/materials.js';
 import { createMirrors } from './car/mirrors.js';
@@ -69,10 +70,19 @@ export function createCar({ color = null, style = 'one', garage = true } = {}) {
   cabin.name = 'cockpitInterior';
   const cabinMaterials = { ...materials, carbon: materials.cabinCarbon, carbonMatte: materials.cabinCarbonMatte, black: materials.cabinBlack, darkMetal: materials.cabinMetal };
   install(sharedCabinGeometry(), cabinMaterials, cabin, 'cabin');
-  const steering = createSteering(cabinMaterials);
-  const instruments = createInstruments(cabinMaterials);
+  // Each style brings its own wheel and cluster: the AMG's squared-off wheel and wide split
+  // display stay with the hypercar, while the coupe gets a round three-spoke M wheel and a
+  // twin-dial M cluster. Only the active pair hangs under the cabin, so name lookups
+  // ('steeringWheel', 'liveInstrumentCluster') always resolve to the car in use.
+  const cabins = new Map();
+  for (const key of garage ? BODY_ORDER : [style]) {
+    const steering = key === 'coupe' ? createCoupeSteering(cabinMaterials) : createSteering(cabinMaterials);
+    const instruments = key === 'coupe' ? createCoupeInstruments(cabinMaterials) : createInstruments(cabinMaterials);
+    instruments.root.name = 'liveInstrumentCluster';
+    cabins.set(key, { steering, instruments });
+  }
+  let steering = null, instruments = null;
   let styleMirrors = null;
-  cabin.add(steering.root, instruments.root);
   // Soft cabin fill: skylight entering the greenhouse plus spill from the display.
   // The rig stays in the scene at all times (only its intensity changes) so the number of
   // lights is constant; otherwise the first cockpit switch recompiles every shader on the fly.
@@ -124,7 +134,7 @@ export function createCar({ color = null, style = 'one', garage = true } = {}) {
   root.add(shadow);
   root.userData.provenance = 'Original parametric geometry; see src/car/ASSET-NOTES.md';
 
-  let spin = 0, styleKey = null, view = '';
+  let spin = 0, styleKey = null, view = '', cabinStyle = null;
   function applyStyle(key) {
     if (!BODY_STYLES[key] || key === styleKey) return;
     styleKey = key;
@@ -133,10 +143,21 @@ export function createCar({ color = null, style = 'one', garage = true } = {}) {
     materials.paint.color.setHex(styleSpec.paint);
     cockpitCamera.position.set(...styleSpec.cockpit.position);
     cockpitCamera.rotation.x = styleSpec.cockpit.pitch;
+    // Swap the whole cockpit pair, not just its branding: the coupe's wheel and gauges are
+    // built independently from the AMG's.
+    if (cabinStyle !== key) {
+      cabinStyle = key;
+      if (steering) cabin.remove(steering.root);
+      if (instruments) cabin.remove(instruments.root);
+      ({ steering, instruments } = cabins.get(key));
+      cabin.add(steering.root, instruments.root);
+    }
     instruments.setBrand(styleSpec.cluster);
     if (styleMirrors) {
       cabin.remove(styleMirrors.interior);
       body.remove(styleMirrors.sides);
+      // The panorama camera rides on root; drop it too or every swap leaves a live camera behind.
+      styleMirrors.camera.parent?.remove(styleMirrors.camera);
       styleMirrors.dispose?.();
     }
     styleMirrors = createMirrors(cabinMaterials, styleSpec.mirrors);

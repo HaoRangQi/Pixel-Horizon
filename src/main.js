@@ -117,8 +117,10 @@ function boot() {
     garage() {
       if (!started || screen !== 'drive' || photo) return;
       const next = BODY_ORDER[(BODY_ORDER.indexOf(vehicle.style) + 1) % BODY_ORDER.length];
+      // Keep the player where they are: forcing chase view here used to leave the rig's
+      // cockpit camera inside an opaque car (interior hidden, glass solid) and black out
+      // the screen until the next view toggle.
       vehicle.setStyle(next);
-      vehicle.setView('chase');
       ui.car(BODY_STYLES[next].name);
       rig.reset();
       ui.toast(`已换上 ${BODY_STYLES[next].name} · ${BODY_STYLES[next].subtitle}`);

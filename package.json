@@ -8,11 +8,13 @@
     "build": "vite build && node tools/pack-standalone.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test tests/*.test.js",
+    "check": "node src/car/check.mjs",
     "verify:browser": "node tools/verify-playable.mjs",
     "verify:instruments": "node tools/verify-instruments.mjs",
     "verify:standalone": "node tools/verify-standalone.mjs",
     "verify:cruise": "node tools/verify-cruise.mjs",
-    "verify:garage": "node tools/verify-garage.mjs"
+    "verify:garage": "node tools/verify-garage.mjs",
+    "verify:memory": "node tools/verify-memory.mjs"
   },
   "dependencies": {
     "three": "^0.187.0"
