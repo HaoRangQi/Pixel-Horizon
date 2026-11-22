@@ -71,4 +71,6 @@ back-references, every buffer attribute and every texture. This once grew a sing
 process past 10 GB in under twenty seconds and froze the machine (it looks like a runaway
 leak but is pure assertion formatting; `--max-old-space-size` cannot cap it because the
 memory is off-heap). Compare booleans or membership instead, as `check.mjs` does with its
-`same` / `differs` helpers and `cabin.children.includes(...)`.
+`same` / `differs` helpers and `cabin.children.includes(...)`. Full incident write-up,
+mechanism and prevention checklist:
+[Node 断言打印 Three.js 场景图导致内存暴涨](../../.agents/notes/implemented/testing/2026-11-22-node-assert-scene-graph-memory.md).
