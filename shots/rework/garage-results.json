@@ -16,7 +16,7 @@
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 23.663971602121492
+    "fps": 23.61507429019587
   },
   "coupe": {
     "style": "coupe",
@@ -34,7 +34,7 @@
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 23.663971602121492
+    "fps": 23.61507429019587
   },
   "mirror": {
     "width": 768,
@@ -55,12 +55,12 @@
       "mode": "SPORT"
     },
     "caption": "HORIZON M4",
-    "speed": 30.939433983614734,
+    "speed": 30.89405576206306,
     "gear": 4,
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 59.86828975967399
+    "fps": 59.88023951815519
   },
   "back": {
     "style": "one",
@@ -73,12 +73,12 @@
       "mode": "E-PERFORMANCE"
     },
     "caption": "AMG ONE",
-    "speed": 28.691037653987337,
+    "speed": 28.620682290821012,
     "gear": 4,
     "mirrors": true,
     "mirrorGlass": true,
     "cockpitX": 0.345,
-    "fps": 59.897879027325274
+    "fps": 60.17559435447432
   },
   "errors": []
 }

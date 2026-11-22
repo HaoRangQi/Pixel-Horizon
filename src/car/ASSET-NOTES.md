@@ -65,6 +65,12 @@ With the Vite server running, open `/src/car/preview.html` for the isolated vehi
 
 `node src/car/check.mjs` checks finite geometry, dimensions, positive-left cockpit placement, right-turn wheel yaw, speed-dependent angle reduction, stable root/pivots, shared geometry, input-driven readings, and clear forward cockpit rays. Final QA images are under `src/car/qa/`. Static and high-speed instrument images use explicitly different source states; the preview scenarios are separate from the game's mechanics.
 
+Dynamic evidence for both cockpits: `npm run record:instruments` drives from the lighthouse
+coast in the AMG and writes `shots/rework/instruments-drive.mp4`; prefix it with
+`HORIZON_STYLE=coupe` for the M4 twin-dial cluster and
+`shots/rework/instruments-drive-coupe.mp4`. Both runs use the same road point and keyboard
+script, and refuse to record if the active style is not the requested one.
+
 **Never pass a Three.js object to `assert.equal` / `assert.deepEqual`.** On failure Node
 builds a full inspection diff of the value — for a scene object that walks circular `parent`
 back-references, every buffer attribute and every texture. This once grew a single `node`

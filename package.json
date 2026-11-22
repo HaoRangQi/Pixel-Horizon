@@ -14,7 +14,8 @@
     "verify:standalone": "node tools/verify-standalone.mjs",
     "verify:cruise": "node tools/verify-cruise.mjs",
     "verify:garage": "node tools/verify-garage.mjs",
-    "verify:memory": "node tools/verify-memory.mjs"
+    "verify:memory": "node tools/verify-memory.mjs",
+    "record:instruments": "node tools/record-instruments.mjs"
   },
   "dependencies": {
     "three": "^0.187.0"
