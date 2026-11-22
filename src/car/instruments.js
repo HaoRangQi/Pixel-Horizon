@@ -22,6 +22,7 @@ function createDialCanvas() {
 
 function drawInstruments(ctx, state) {
   const { speed, rpm, gear, fuel, coolant, odometer, turnSignal, time } = state;
+  const brand = state.brand || { header: 'AMG  //  PERFORMANCE', sub: 'HORIZON ONE', mode: 'E-PERFORMANCE' };
   const blink = Math.floor(time * 2.8) % 2 === 0;
   ctx.fillStyle = '#050a10'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
   const glow = ctx.createRadialGradient(420, 230, 20, 500, 250, 560);
@@ -32,9 +33,9 @@ function drawInstruments(ctx, state) {
 
   // Header
   ctx.textAlign = 'center'; ctx.fillStyle = '#9da9b4'; ctx.font = '600 21px Arial,sans-serif';
-  ctx.fillText('AMG  //  PERFORMANCE', 768, 36);
+  ctx.fillText(brand.header, 768, 36);
   ctx.font = '14px Arial,sans-serif'; ctx.fillStyle = '#677786';
-  ctx.fillText('HORIZON ONE', 768, 58);
+  ctx.fillText(brand.sub, 768, 58);
 
   // Shift lights
   for (let i = 0; i < 12; i++) {
@@ -84,7 +85,7 @@ function drawInstruments(ctx, state) {
   // Right: gear
   ctx.textAlign = 'center'; ctx.fillStyle = '#96a5b2'; ctx.font = '15px Arial,sans-serif'; ctx.fillText('GEAR', 1188, 110);
   ctx.fillStyle = gear === 'R' ? '#ffbb74' : '#fafdf2'; ctx.font = '700 88px Arial,sans-serif'; ctx.fillText(String(gear), 1188, 202);
-  ctx.fillStyle = '#76d8d0'; ctx.font = '13px Arial,sans-serif'; ctx.fillText(gear === 'N' ? 'NEUTRAL' : gear === 'R' ? 'REVERSE' : 'E-PERFORMANCE', 1188, 232);
+  ctx.fillStyle = '#76d8d0'; ctx.font = '13px Arial,sans-serif'; ctx.fillText(gear === 'N' ? 'NEUTRAL' : gear === 'R' ? 'REVERSE' : brand.mode, 1188, 232);
 
   // Right: ground speed
   ctx.fillStyle = '#96a5b2'; ctx.font = '15px Arial,sans-serif'; ctx.fillText('GROUND SPEED', 1392, 110);
@@ -131,7 +132,7 @@ export function createInstruments(materials) {
     root.add(screw);
   }
   let accumulator = 1;
-  const state = { speed: 0, rpm: 0, gear: 'N', fuel: 1, coolant: 20, odometer: 0, turnSignal: 0, time: 0 };
+  const state = { speed: 0, rpm: 0, gear: 'N', fuel: 1, coolant: 20, odometer: 0, turnSignal: 0, time: 0, brand: { header: 'AMG  //  PERFORMANCE', sub: 'HORIZON ONE', mode: 'E-PERFORMANCE' } };
   function update(dt, data) {
     Object.assign(state, data);
     needle.rotation.z = -tickAngle(state.rpm);
@@ -143,6 +144,11 @@ export function createInstruments(materials) {
       accumulator = 0;
     }
   }
+  function setBrand(brand) {
+    state.brand = brand;
+    root.userData.readings = { ...state };
+    accumulator = 1; // force the canvas to redraw with the new badge on the next update
+  }
   update(1, state);
-  return { root, update, needle, canvas: dial.canvas };
+  return { root, update, needle, setBrand, canvas: dial.canvas };
 }

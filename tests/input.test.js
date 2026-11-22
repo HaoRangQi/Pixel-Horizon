@@ -49,3 +49,32 @@ test('left driver, front wheels and physical gauges consume the same conventiona
   assert.ok(car.wheels.filter((wheel) => wheel.userData.front).every((wheel) => wheel.rotation.y < 0));
   assert.deepEqual(car.root.position.toArray(), [0, 0, 0]);
 });
+
+test('the garage swaps body styles without touching the shared driving state', () => {
+  const state = createDriver(road);
+  for (let i = 0; i < 300; i++) stepDriver(state, { throttle: 1 }, 1 / 120, road);
+  const car = createCar();
+  const before = state.speed;
+  for (let i = 0; i < 90; i++) stepDriver(state, { throttle: 1 }, 1 / 120, road);
+  car.update(1 / 60, { ...state, time: 1 });
+  // Both shells exist up front, so a swap is a visibility flip rather than a rebuild.
+  const one = car.root.getObjectByName('body-one');
+  const coupe = car.root.getObjectByName('body-coupe');
+  assert.ok(one && coupe);
+  assert.equal(coupe.visible, false);
+  car.setView('chase');
+  car.setStyle('coupe');
+  assert.equal(car.style, 'coupe');
+  assert.equal(coupe.visible, true);
+  assert.equal(one.visible, false);
+  const cluster = car.root.getObjectByName('liveInstrumentCluster');
+  assert.equal(cluster.userData.readings.brand.sub, 'HORIZON M4');
+  // The swap must not reset the driving model or the wheels.
+  assert.equal(state.speed > before, true);
+  const wheelPositions = car.wheels.map((wheel) => wheel.position.toArray());
+  car.update(1 / 60, { ...state, time: 1.1 });
+  assert.deepEqual(car.wheels.map((wheel) => wheel.position.toArray()), wheelPositions);
+  assert.equal(cluster.userData.readings.speed, state.speed);
+  car.setStyle('one');
+  assert.equal(car.root.userData.style, 'one');
+});

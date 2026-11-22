@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "first": {
+    "style": "one",
+    "visibleShells": [
+      "one"
+    ],
+    "badge": {
+      "header": "AMG  //  PERFORMANCE",
+      "sub": "HORIZON ONE",
+      "mode": "E-PERFORMANCE"
+    },
+    "caption": "AMG ONE",
+    "speed": 0,
+    "gear": "N",
+    "mirrors": true,
+    "mirrorGlass": true,
+    "cockpitX": 0.345,
+    "fps": 14.804579550985896
+  },
+  "coupe": {
+    "style": "coupe",
+    "visibleShells": [
+      "coupe"
+    ],
+    "badge": {
+      "header": "M  //  PERFORMANCE",
+      "sub": "HORIZON M4",
+      "mode": "SPORT"
+    },
+    "caption": "HORIZON M4",
+    "speed": 0,
+    "gear": "N",
+    "mirrors": true,
+    "mirrorGlass": true,
+    "cockpitX": 0.345,
+    "fps": 40.967226216096925
+  },
+  "mirror": {
+    "width": 768,
+    "height": 192,
+    "visible": true,
+    "interior": true,
+    "hasMap": true,
+    "type": 1016
+  },
+  "driving": {
+    "style": "coupe",
+    "visibleShells": [
+      "coupe"
+    ],
+    "badge": {
+      "header": "M  //  PERFORMANCE",
+      "sub": "HORIZON M4",
+      "mode": "SPORT"
+    },
+    "caption": "HORIZON M4",
+    "speed": 30.89405576206306,
+    "gear": 4,
+    "mirrors": true,
+    "mirrorGlass": true,
+    "cockpitX": 0.345,
+    "fps": 60.13999803102408
+  },
+  "back": {
+    "style": "one",
+    "visibleShells": [
+      "one"
+    ],
+    "badge": {
+      "header": "AMG  //  PERFORMANCE",
+      "sub": "HORIZON ONE",
+      "mode": "E-PERFORMANCE"
+    },
+    "caption": "AMG ONE",
+    "speed": 28.03878082376732,
+    "gear": 4,
+    "mirrors": true,
+    "mirrorGlass": true,
+    "cockpitX": 0.345,
+    "fps": 51.18110236220473
+  },
+  "errors": []
+}

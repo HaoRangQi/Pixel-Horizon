@@ -46,12 +46,13 @@
           <div class="cruise-state" id="cruise-state"><span></span>观光巡航</div>
           <div class="speed-line"><span class="gear" id="gear">N</span><strong id="speed">000</strong><span class="speed-unit">km/h</span></div>
           <div class="rev-track" id="rev-track" aria-hidden="true"></div>
-          <div class="car-caption"><span>AMG ONE</span><span id="view-label">追尾视角</span></div>
+          <div class="car-caption"><span id="car-name">AMG ONE</span><span id="view-label">追尾视角</span></div>
         </div>
         <nav class="drive-actions" aria-label="驾驶快捷操作">
           <button id="camera-button"><kbd>C</kbd><span>视角</span></button>
           <button id="cruise-button" aria-pressed="false"><kbd>F</kbd><span>观光巡航</span></button>
           <button id="map-button"><kbd>M</kbd><span>探索地图</span></button>
+          <button id="garage-button"><kbd>G</kbd><span>换车</span></button>
           <button id="hide-button"><kbd>H</kbd><span>纯净画面</span></button>
         </nav>
         <div id="race-hud" hidden><span>海岸短程赛</span><strong id="race-position">1 / 4</strong><span id="race-progress">准备出发</span></div>
@@ -72,7 +73,7 @@
       </section>
 
       <section id="pause-panel" class="overlay" hidden aria-label="暂停菜单">
-        <div class="pause-shell"><p class="eyebrow">TAKE YOUR TIME</p><h2>风景会等你。</h2><p id="pause-description">休息一下，随时回来继续兜风。</p><button id="resume-button" class="primary-button">继续旅程 <span>↗</span></button><button id="reset-button" class="button-quiet">回到公路 <kbd>R</kbd></button><p class="pause-help">WASD / 方向键 驾驶　·　空格 手刹<br />C 视角　F 巡航　M 地图　P 观景　T 日光</p></div>
+        <div class="pause-shell"><p class="eyebrow">TAKE YOUR TIME</p><h2>风景会等你。</h2><p id="pause-description">休息一下，随时回来继续兜风。</p><button id="resume-button" class="primary-button">继续旅程 <span>↗</span></button><button id="reset-button" class="button-quiet">回到公路 <kbd>R</kbd></button><p class="pause-help">WASD / 方向键 驾驶　·　空格 手刹<br />C 视角　F 巡航　M 地图　G 换车　P 观景　T 日光</p></div>
       </section>
 
       <section id="photo-hud" hidden><div><span class="photo-dot"></span>观景模式</div><p>拖动鼠标环视 <b>·</b> 滚轮调节距离</p><button id="exit-photo">返回驾驶 <kbd>P</kbd></button></section>

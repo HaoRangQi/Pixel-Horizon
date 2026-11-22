@@ -5,6 +5,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createWorld } from './world.js';
 import { createCar } from './car.js';
+import { BODY_ORDER, BODY_STYLES } from './car/bodies.js';
 import { createCameraRig } from './camera.js';
 import { angleDelta, createDriver, stepDriver, resetDriver, followRoad } from './drive.js';
 import { readDrivingInput } from './input.js';
@@ -113,6 +114,15 @@ function boot() {
     reset() {
       resetDriver(state, road, state.t); rig.reset(); actions.resume(); ui.toast('已回到公路，继续出发');
     },
+    garage() {
+      if (!started || screen !== 'drive' || photo) return;
+      const next = BODY_ORDER[(BODY_ORDER.indexOf(vehicle.style) + 1) % BODY_ORDER.length];
+      vehicle.setStyle(next);
+      vehicle.setView('chase');
+      ui.car(BODY_STYLES[next].name);
+      rig.reset();
+      ui.toast(`已换上 ${BODY_STYLES[next].name} · ${BODY_STYLES[next].subtitle}`);
+    },
     hide() { if (!started || screen !== 'drive') return; hidden = !hidden; ui.hide(hidden); },
     signalLeft() { if (screen === 'drive') { state.turnSignal = state.turnSignal === -1 ? 0 : -1; state.signalArmed = false; } },
     signalRight() { if (screen === 'drive') { state.turnSignal = state.turnSignal === 1 ? 0 : 1; state.signalArmed = false; } },
@@ -125,7 +135,11 @@ function boot() {
     race() {
       ui.transition(() => {
         if (!raceCars.length) {
-          raceCars = [0xeff2c1, 0x63b9c1, 0xe7a84e].map((color) => { const car = createCar({ color }); scene.add(car.root); return car; });
+          raceCars = [0xeff2c1, 0x63b9c1, 0xe7a84e].map((color, i) => {
+            const car = createCar({ color, style: BODY_ORDER[(BODY_ORDER.indexOf(vehicle.style) + 1 + i) % BODY_ORDER.length], garage: false });
+            scene.add(car.root);
+            return car;
+          });
         }
         const start = Math.max(0.015, regions[1].t - 0.018);
         resetDriver(state, road, start); rig.reset();
@@ -209,7 +223,7 @@ function boot() {
   placeCar();
   rig.update(1, state, { showcase: true, time: 0 });
 
-  const hotkeys = { KeyC: 'camera', KeyF: 'cruise', KeyT: 'mood', KeyM: 'map', KeyP: 'photo', KeyH: 'hide', KeyR: 'reset', KeyQ: 'signalLeft', KeyE: 'signalRight' };
+  const hotkeys = { KeyC: 'camera', KeyF: 'cruise', KeyT: 'mood', KeyM: 'map', KeyP: 'photo', KeyH: 'hide', KeyR: 'reset', KeyQ: 'signalLeft', KeyE: 'signalRight', KeyG: 'garage' };
   addEventListener('keydown', (event) => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) event.preventDefault();
     if (!started) { if (event.code === 'Enter' || event.code === 'Space') actions.start(); return; }
@@ -271,6 +285,7 @@ function boot() {
       odometer: state.odometer, turnSignal: state.turnSignal });
     placeCar();
     rig.update(dt, state, { showcase: !started, time });
+    vehicle.updateMirrors?.(renderer, scene, !photo && rig.mode === 2, dt);
     world.update(dt, time);
     world.followFocus?.(state);
     dust.update(dt, state, running);
@@ -304,6 +319,7 @@ function boot() {
   camera.fov = 66; camera.updateProjectionMatrix();
   renderer.compile(scene, camera);
   renderer.render(scene, camera);
+  vehicle.updateMirrors(renderer, scene, true, 1);
   camera.position.copy(savedPosition); camera.quaternion.copy(savedQuaternion);
   camera.fov = savedFov; camera.updateProjectionMatrix();
   vehicle.setView('chase');

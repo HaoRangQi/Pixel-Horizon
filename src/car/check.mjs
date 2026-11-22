@@ -22,7 +22,8 @@ for (const wheel of car.wheels) {
   const bounds = new THREE.Box3().setFromObject(wheel, true);
   assert.ok(Math.abs(bounds.min.y) < 0.00001, `${wheel.name} contacts Y=0`);
 }
-assert.equal(car.body.getObjectByName('car-paint').geometry, second.body.getObjectByName('car-paint').geometry);
+assert.equal(car.body.getObjectByName('car-one-paint').geometry, second.body.getObjectByName('car-one-paint').geometry);
+assert.equal(car.body.getObjectByName('car-coupe-paint').geometry, second.body.getObjectByName('car-coupe-paint').geometry);
 assert.equal(car.wheels[0].userData.rolling.children[0].geometry, second.wheels[0].userData.rolling.children[0].geometry);
 const pivotPositions = car.wheels.map(wheel => wheel.position.toArray());
 car.root.position.set(12, 7, -31);
@@ -37,7 +38,7 @@ const fastAngle = Math.abs(car.wheels[0].rotation.y);
 car.update(0, { ...state, speed: 0 });
 assert.ok(Math.abs(car.wheels[0].rotation.y) > fastAngle * 10, 'wheel angle reduces with speed');
 const readings = car.body.getObjectByName('liveInstrumentCluster').userData.readings;
-assert.deepEqual(readings, { speed: 0, rpm: 8600, gear: 4, fuel: 0.71, coolant: 94, odometer: 12480, turnSignal: 1, time: 0.1 });
+assert.deepEqual(readings, { speed: 0, rpm: 8600, gear: 4, fuel: 0.71, coolant: 94, odometer: 12480, turnSignal: 1, time: 0.1, brand: { header: 'AMG  //  PERFORMANCE', sub: 'HORIZON ONE', mode: 'E-PERFORMANCE' } });
 car.update(0, { speed: -4, steer: -0.5, rpm: 1700, gear: 'R', fuel: 0.94, coolant: 78, odometer: 3, turnSignal: -1, time: 0.2 });
 assert.equal(car.body.getObjectByName('liveInstrumentCluster').userData.readings.gear, 'R');
 assert.equal(car.body.getObjectByName('liveInstrumentCluster').userData.readings.speed, -4);
@@ -51,7 +52,15 @@ for (const x of [-0.2, 0, 0.2]) {
   assert.equal(opaque.length, 0, `cockpit road sightline ${x}`);
 }
 assert.equal(car.body.getObjectByName('cockpitInterior').visible, true);
+car.setStyle('coupe');
+assert.ok(car.body.getObjectByName('body-coupe').visible && !car.body.getObjectByName('body-one').visible);
+car.root.updateMatrixWorld(true);
+for (const x of [-0.2, 0, 0.2]) {
+  const ray = new THREE.Raycaster(eye, new THREE.Vector3(x, -0.035, 1).normalize(), 0.02, 8);
+  const opaque = ray.intersectObject(car.root, true).filter(hit => !hit.object.material.transparent && hit.object.parent?.visible !== false);
+  assert.equal(opaque.length, 0, `coupe cockpit road sightline ${x}`);
+}
 car.setView('chase');
 assert.equal(car.body.getObjectByName('cockpitInterior').visible, false);
-assert.equal(car.body.getObjectByName('car-glass').material.transparent, false);
-console.log(JSON.stringify({ status: 'PASS', meshes, triangles, uniqueGeometries: unique.size, cockpitEye: eye.toArray(), wheelbase: car.root.userData.dimensions.wheelbase, checks: ['finite geometry', 'wheel contact', 'left-hand drive', 'root/pivot invariants', 'right-turn yaw', 'speed-reduced steering', 'shared geometry', 'state-driven instrument readings', 'reverse state', 'three unobstructed cockpit rays', 'view visibility'] }, null, 2));
+assert.equal(car.body.getObjectByName('car-one-glass').material.transparent, false);
+console.log(JSON.stringify({ status: 'PASS', meshes, triangles, uniqueGeometries: unique.size, cockpitEye: eye.toArray(), wheelbase: car.root.userData.dimensions.wheelbase, checks: ['finite geometry', 'wheel contact', 'left-hand drive', 'root/pivot invariants', 'right-turn yaw', 'speed-reduced steering', 'shared geometry', 'state-driven instrument readings', 'reverse state', 'three unobstructed cockpit rays', 'view visibility', 'garage shells'] }, null, 2));

@@ -11,6 +11,31 @@ This vehicle is an original procedural interpretation of the Mercedes-AMG ONE. G
 
 The target is a smooth, low, wide hypercar with separate crowned wheel arches, a compact angular intake immediately ahead of each rear wheel, a large flush carbon cowl, curved dark glazing, an oval roof air scoop and shark fin, two-element wing, thin rear LEDs, and a finned diffuser. Small details sit on continuous major surfaces; they do not substitute for the silhouette.
 
+## Garage: two original bodies
+
+`bodies.js` holds the style table. Both cars are original procedural interpretations with
+the same axles, tyres and driving model, so a swap only flips which shell group is visible.
+
+- `one` — the AMG ONE-inspired hypercar above (4.756 × 2.010 × 1.261 m).
+- `coupe` — an original grand-touring coupe in the spirit of a BMW 4 Series: long bonnet,
+  upright greenhouse, body-colour buttresses, slim L-shaped tail lamps and a wide twin-kidney
+  nose (4.79 × 2.18 × 1.44 m). Green paint by default. Built from `coupe.js`; the nose
+  treatment is a gesture toward the supplied reference photo, not a copy of any BMW badge
+  or model-specific trim.
+
+Press `G` (or the 换车 button) to swap mid-drive. The instrument header, footer badge and
+HUD caption follow the active car; opponents in the sprint borrow whichever style the player
+is not driving. At load both shells are built once and share the same materials, so the swap
+costs a visibility toggle rather than a rebuild.
+
+## Mirrors
+
+`mirrors.js` renders one 768 × 192 rear panorama (62° horizontal FOV, 30 Hz) and maps three
+cropped windows of it onto the interior mirror and both door glasses. One pass feeds all
+three mirrors instead of three scene passes; car meshes are hidden for that pass (lights stay
+resident so shader permutations never change). The panorama is only refreshed in the cockpit
+view. Anything that changes the door-pod position must update `mirrors` in the style table.
+
 ## Modules and units
 
 `car.js` owns assembly and presentation updates. `exterior.js` owns shell/aero geometry. `wheels.js` owns reusable wheel geometry and pivots. `cabin.js` owns the physical interior and steering wheel. `instruments.js` owns the state-driven display, metal tachometer bezel, and physical RPM hand. `materials.js` owns the PBR palette. `geometry.js` supplies bounded geometry authoring primitives and material batching.

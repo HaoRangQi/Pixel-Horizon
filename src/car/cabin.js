@@ -43,9 +43,9 @@ export function createCabinGeometry() {
     add('silver', roundedBox([width, 0.079, 0.007], [x, 0.362, 0.496], [-0.34, 0, 0], 0.007));
     for (let i = 0; i < 4; i++) add('black', box([width * 0.7, 0.003, 0.002], [x, 0.335 + i * 0.016, 0.487 - i * 0.005], [-0.34, 0, 0]));
   }
-  add('carbon', roundedBox([0.12, 0.035, 0.02], [-0.12, 1.08, 0.1], [0, 0, 0], 0.007));
-  add('mirror', roundedBox([0.103, 0.023, 0.003], [-0.12, 1.079, 0.084], [0, 0, 0], 0.004));
-  add('black', rod([-0.12, 1.109, 0.075], [-0.12, 1.093, 0.1], 0.005));
+  // Interior rear-view mirror: carbon housing on a short stalk, angled to the driver.
+  add('carbon', roundedBox([0.19, 0.062, 0.026], [0.10, 1.098, 0.23], [0, -0.42, 0], 0.01));
+  add('black', rod([0.07, 1.168, 0.15], [0.098, 1.122, 0.222], 0.0055));
   return batch.finish();
 }
 

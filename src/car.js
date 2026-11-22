@@ -1,12 +1,20 @@
 import * as THREE from 'three';
-import { createExteriorGeometry, FRONT_AXLE, REAR_AXLE, WHEEL_RADIUS } from './car/exterior.js';
-import { createCabinGeometry, createSteering } from './car/cabin.js';
+import { FRONT_AXLE, REAR_AXLE, WHEEL_RADIUS } from './car/exterior.js';
+import { createSteering } from './car/cabin.js';
+import { BODY_ORDER, BODY_STYLES, sharedCabinGeometry } from './car/bodies.js';
 import { createInstruments } from './car/instruments.js';
 import { createMaterials } from './car/materials.js';
+import { createMirrors } from './car/mirrors.js';
 import { createWheels } from './car/wheels.js';
 
-let exteriorGeometry, cabinGeometry, shadowMap;
 const TAU = Math.PI * 2;
+let shadowMap;
+const geometryCache = new Map();
+
+function cachedGeometry(style) {
+  if (!geometryCache.has(style)) geometryCache.set(style, BODY_STYLES[style].build());
+  return geometryCache.get(style);
+}
 
 function contactMap() {
   const data = new Uint8Array(64 * 128 * 4);
@@ -33,24 +41,37 @@ function install(geometry, materials, parent, prefix) {
 }
 
 /** Metres. Forward +Z, up +Y, driver-left +X. The caller owns root motion. */
-export function createCar({ color = 0xe02028 } = {}) {
-  exteriorGeometry ??= createExteriorGeometry();
-  cabinGeometry ??= createCabinGeometry();
+export function createCar({ color = null, style = 'one', garage = true } = {}) {
   shadowMap ??= contactMap();
-  const materials = createMaterials(color);
+  const spec = BODY_STYLES[style] ?? BODY_STYLES.one;
+  const paint = color ?? spec.paint;
+  const materials = createMaterials(paint);
   const root = new THREE.Group();
-  root.name = 'Horizon One · detailed';
+  root.name = `Horizon ${style} · detailed`;
   const body = new THREE.Group();
   body.name = 'suspendedBody';
   root.add(body);
-  install(exteriorGeometry, materials, body, 'car');
+
+  // Every body style installs its own shell under one named group, so a garage swap can
+  // exchange the visible car while the driving model, wheels and cockpit keep running.
+  // Opponent cars pass garage:false and build only the style they need.
+  const shells = new Map();
+  for (const key of garage ? BODY_ORDER : [style]) {
+    const shell = new THREE.Group();
+    shell.name = `body-${key}`;
+    shell.visible = false;
+    install(cachedGeometry(key), materials, shell, `car-${key}`);
+    body.add(shell);
+    shells.set(key, shell);
+  }
 
   const cabin = new THREE.Group();
   cabin.name = 'cockpitInterior';
   const cabinMaterials = { ...materials, carbon: materials.cabinCarbon, carbonMatte: materials.cabinCarbonMatte, black: materials.cabinBlack, darkMetal: materials.cabinMetal };
-  install(cabinGeometry, cabinMaterials, cabin, 'cabin');
+  install(sharedCabinGeometry(), cabinMaterials, cabin, 'cabin');
   const steering = createSteering(cabinMaterials);
   const instruments = createInstruments(cabinMaterials);
+  let styleMirrors = null;
   cabin.add(steering.root, instruments.root);
   // Soft cabin fill: skylight entering the greenhouse plus spill from the display.
   // The rig stays in the scene at all times (only its intensity changes) so the number of
@@ -90,8 +111,6 @@ export function createCar({ color = 0xe02028 } = {}) {
 
   const cockpitCamera = new THREE.Object3D();
   cockpitCamera.name = 'cockpitCamera-left-hand-drive';
-  cockpitCamera.position.set(0.345, 1.015, -0.235);
-  cockpitCamera.rotation.x = 0.075;
   const hoodCamera = new THREE.Object3D();
   hoodCamera.name = 'hoodCamera';
   hoodCamera.position.set(0, 0.785, 1.22);
@@ -103,10 +122,33 @@ export function createCar({ color = 0xe02028 } = {}) {
   shadow.position.y = 0.009;
   shadow.renderOrder = -1;
   root.add(shadow);
-  root.userData.dimensions = { length: 4.756, width: 2.010, height: 1.261, wheelbase: FRONT_AXLE - REAR_AXLE };
   root.userData.provenance = 'Original parametric geometry; see src/car/ASSET-NOTES.md';
 
-  let spin = 0, view = '';
+  let spin = 0, styleKey = null, view = '';
+  function applyStyle(key) {
+    if (!BODY_STYLES[key] || key === styleKey) return;
+    styleKey = key;
+    const styleSpec = BODY_STYLES[key];
+    for (const [name, shell] of shells) shell.visible = name === key;
+    materials.paint.color.setHex(styleSpec.paint);
+    cockpitCamera.position.set(...styleSpec.cockpit.position);
+    cockpitCamera.rotation.x = styleSpec.cockpit.pitch;
+    instruments.setBrand(styleSpec.cluster);
+    if (styleMirrors) {
+      cabin.remove(styleMirrors.interior);
+      body.remove(styleMirrors.sides);
+      styleMirrors.dispose?.();
+    }
+    styleMirrors = createMirrors(cabinMaterials, styleSpec.mirrors);
+    cabin.add(styleMirrors.interior);
+    body.add(styleMirrors.sides);
+    root.add(styleMirrors.camera);
+    cabin.visible = view === 'cockpit';
+    styleMirrors.setActive(cabinInside);
+    root.userData.dimensions = { length: styleSpec.length || 4.756, width: styleSpec.width || 2.010, height: styleSpec.height || 1.261, wheelbase: FRONT_AXLE - REAR_AXLE };
+    root.userData.style = key;
+  }
+
   function setView(mode) {
     if (mode === view) return;
     view = mode;
@@ -118,6 +160,12 @@ export function createCar({ color = 0xe02028 } = {}) {
     materials.glass.depthWrite = !inside;
     materials.glass.needsUpdate = true;
     cabin.visible = inside;
+    styleMirrors?.setActive(inside);
+  }
+
+  function updateMirrors(renderer, scene, active, dt) {
+    styleMirrors?.setActive(active);
+    if (active) styleMirrors?.render(renderer, scene, root, dt);
   }
 
   function update(dt, { speed = 0, steer = 0, steerVisual = null, throttle = 0, brake = 0, time = 0, rpm = 0, gear = 'N', fuel = 1, coolant = 20, odometer = 0, turnSignal = 0 } = {}) {
@@ -138,7 +186,12 @@ export function createCar({ color = 0xe02028 } = {}) {
     materials.taillight.emissiveIntensity = 1.1 + brake * 2.4;
     instruments.update(dt, { speed, rpm, gear, fuel, coolant, odometer, turnSignal, time });
   }
-
+  applyStyle(style);
   setView('chase');
-  return { root, body, wheels, cockpitCamera, hoodCamera, update, setView, setMood };
+  return {
+    root, body, wheels, cockpitCamera, hoodCamera,
+    get mirrors() { return styleMirrors; },
+    get style() { return styleKey; },
+    setStyle: applyStyle, update, updateMirrors, setView, setMood,
+  };
 }

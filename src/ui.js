@@ -15,6 +15,7 @@ export function createUI(regions, road, actions) {
     'pause-button': 'pause', 'open-map': 'map', 'map-button': 'map',
     'close-map': 'close', 'resume-button': 'resume', 'reset-button': 'reset',
     'hide-button': 'hide', 'exit-photo': 'photo', 'race-button': 'race',
+    'garage-button': 'garage',
   };
   for (const [id, action] of Object.entries(buttons)) $(id).addEventListener('click', () => actions[action]());
   $('rev-track').innerHTML = '<i></i>'.repeat(22);
@@ -98,6 +99,7 @@ export function createUI(regions, road, actions) {
       if (name === 'pause') $('resume-button').focus();
     },
     mood(value) { $('mood-label').textContent = value === 'sunset' ? '日落时分' : '午后晴空'; },
+    car(name) { $('car-name').textContent = name; },
     sound(muted) { $('sound-icon').textContent = muted ? '♫' : '♪'; $('sound-button').style.opacity = muted ? '.45' : '1'; $('sound-button').setAttribute('aria-label', muted ? '开启声音' : '关闭声音'); },
     photo(value) { app.classList.toggle('is-photo', value); $('photo-hud').hidden = !value; },
     hide(value) { app.classList.toggle('hud-hidden', value); $('hidden-hint').hidden = !value; },
