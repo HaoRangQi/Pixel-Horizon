@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "layout": {
+    "screenWidth": 0.71,
+    "screenHeight": 0.1775,
+    "panelTop": 625.6581013359474,
+    "panelBottom": 811.0967359056168,
+    "wheelTop": 747.0895173385787
+  },
+  "interior": {
+    "meanLuminance": 60.82722104762052,
+    "lights": [
+      "cockpitAmbientLight",
+      "cockpitFillLight",
+      "clusterGlowLight"
+    ]
+  },
+  "samples": [
+    {
+      "state": {
+        "screen": "drive",
+        "mood": "day",
+        "view": 2,
+        "viewName": "驾驶舱",
+        "fps": 47,
+        "speed": 0,
+        "rpm": 1350,
+        "gear": "N",
+        "fuel": 0.9399900666666388,
+        "coolant": 78.43768470243569,
+        "odometer": 0,
+        "heading": 1.5516877234927426,
+        "steer": 0,
+        "position": [
+          107.34537169245723,
+          24.195417019899477,
+          -1099.8887764028639
+        ],
+        "region": "灯塔海岸",
+        "t": 0.1060000000000001,
+        "cruise": false,
+        "draws": 492,
+        "triangles": 1327490
+      },
+      "physicalDriverX": 0.345,
+      "gauges": {
+        "speed": 0,
+        "rpm": 1350,
+        "gear": "N",
+        "fuel": 0.9399900666666388,
+        "coolant": 78.43768470243569,
+        "odometer": 0,
+        "turnSignal": 0,
+        "time": 5.822100000023835
+      },
+      "needle": -2.8863382504856223
+    },
+    {
+      "state": {
+        "screen": "drive",
+        "mood": "day",
+        "view": 2,
+        "viewName": "驾驶舱",
+        "fps": 60,
+        "speed": 111,
+        "rpm": 8610,
+        "gear": 4,
+        "fuel": 0.9396848240308388,
+        "coolant": 79.63477497492131,
+        "odometer": 109.03576716374813,
+        "heading": 1.469891281230938,
+        "steer": 0.06811490371013457,
+        "position": [
+          216.17380637320238,
+          26.48556710370656,
+          -1093.6311958347999
+        ],
+        "region": "灯塔海岸",
+        "t": 0.12058606957600015,
+        "cruise": true,
+        "draws": 443,
+        "triangles": 1327737
+      },
+      "physicalDriverX": 0.345,
+      "gauges": {
+        "speed": 30.971308679431473,
+        "rpm": 8609.733216862174,
+        "gear": 4,
+        "fuel": 0.9396848240308388,
+        "coolant": 79.63477497492131,
+        "odometer": 109.03576716374813,
+        "turnSignal": 0,
+        "time": 11.142
+      },
+      "needle": -5.737228818125123
+    },
+    {
+      "state": {
+        "screen": "drive",
+        "mood": "sunset",
+        "view": 2,
+        "viewName": "驾驶舱",
+        "fps": 59,
+        "speed": 71,
+        "rpm": 5503,
+        "gear": 4,
+        "fuel": 0.9396819840586369,
+        "coolant": 79.7182071558665,
+        "odometer": 136.23860077223523,
+        "heading": 1.4377665835603088,
+        "steer": 0.03802751319138876,
+        "position": [
+          243.19666876599925,
+          27.12815759021756,
+          -1090.5186460726618
+        ],
+        "region": "灯塔海岸",
+        "t": 0.12424582784665272,
+        "cruise": true,
+        "draws": 474,
+        "triangles": 1431659
+      },
+      "physicalDriverX": 0.345,
+      "gauges": {
+        "speed": 19.690279985402093,
+        "rpm": 5502.784562886692,
+        "gear": 4,
+        "fuel": 0.9396819840586369,
+        "coolant": 79.7182071558665,
+        "odometer": 136.23860077223523,
+        "turnSignal": 0,
+        "time": 12.323300000071521
+      },
+      "needle": -4.517132934823864
+    }
+  ],
+  "errors": []
+}

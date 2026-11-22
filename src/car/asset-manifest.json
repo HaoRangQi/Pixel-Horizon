@@ -1,0 +1,18 @@
+{
+  "asset": "Horizon One detailed vehicle",
+  "source": "Original procedural Three.js geometry and Canvas/DataTexture artwork authored for Pixel Horizon",
+  "third_party_runtime_assets": [],
+  "world_unit": "metre",
+  "body_dimensions": { "length": 4.756, "width": 2.010, "height": 1.261, "wheelbase": 2.720 },
+  "forward": "+Z",
+  "up": "+Y",
+  "driver_left": "+X",
+  "variants": ["red player car", "caller-specified paint color"],
+  "states": ["exterior", "cockpit", "wheel steering/rolling", "steering wheel", "brake LEDs", "live mechanical instruments"],
+  "instrument_texture": { "width": 1024, "height": 512, "color_space": "sRGB", "filter": "linear/mipmapped", "refresh_hz": 24 },
+  "animation_owner": "presentation only; drive.js is the mechanical state source",
+  "geometry_reuse": "static exterior, cabin, and wheel buffers are cached across cars",
+  "collision_role": "visual only; driving model owns collision/road contact",
+  "provenance": "ASSET-NOTES.md",
+  "visual_evidence": "qa/"
+}

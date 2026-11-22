@@ -1,0 +1,208 @@
+{
+  "errors": [],
+  "viewport": [
+    1440,
+    900
+  ],
+  "environmentIntensity": 0.5,
+  "result": [
+    {
+      "pose": "town",
+      "calls": 565,
+      "triangles": 975369,
+      "camera": [
+        -491.53966241811185,
+        21.653430268305783,
+        -946.9077688685968
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "coast",
+      "calls": 335,
+      "triangles": 797571,
+      "camera": [
+        99.34683220289632,
+        27.555417019899476,
+        -1100.0416359263963
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "fields",
+      "calls": 279,
+      "triangles": 724933,
+      "camera": [
+        1177.2971972045693,
+        113.78297757048293,
+        -152.94748915065523
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "valley",
+      "calls": 369,
+      "triangles": 1158252,
+      "camera": [
+        822.7602238624023,
+        140.50342414114203,
+        700.0981771813927
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.799999999999272
+    },
+    {
+      "pose": "lake",
+      "calls": 428,
+      "triangles": 895439,
+      "camera": [
+        -355.6456957351474,
+        179.98740326382293,
+        1002.6583922652392
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "summit",
+      "calls": 434,
+      "triangles": 1198911,
+      "camera": [
+        -1127.3542531453913,
+        236.97835387278164,
+        465.21016433658895
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.799999999999272
+    },
+    {
+      "pose": "lighthouse",
+      "calls": 138,
+      "triangles": 706266,
+      "camera": [
+        293.73255025914034,
+        34.20208978643019,
+        -1124.4780379904062
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999891,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "bridge",
+      "calls": 331,
+      "triangles": 1179362,
+      "camera": [
+        802.9191730131513,
+        132.53572739252232,
+        818.2174162898278
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999709,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "shop",
+      "calls": 356,
+      "triangles": 975400,
+      "camera": [
+        -485.1971886970025,
+        21.053430268305785,
+        -946.0285492731388
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.69999999999709,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "tree",
+      "calls": 242,
+      "triangles": 1061558,
+      "camera": [
+        875.4644797826032,
+        136.65133712905035,
+        628.3847896816206
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.700000000000728,
+      "p95FrameMs": 16.700000000000728
+    },
+    {
+      "pose": "dock",
+      "calls": 427,
+      "triangles": 788430,
+      "camera": [
+        -408.1254348754883,
+        180.9453638259269,
+        947.3129997253418
+      ],
+      "stats": {
+        "instances": 43288,
+        "batches": 2660,
+        "treeCount": 1936,
+        "houseCount": 25
+      },
+      "medianFrameMs": 16.700000000000728,
+      "p95FrameMs": 16.799999999999272
+    }
+  ]
+}

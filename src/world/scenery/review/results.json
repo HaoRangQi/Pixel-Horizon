@@ -1,0 +1,167 @@
+{
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "results": [
+    {
+      "pose": "town",
+      "calls": 554,
+      "triangles": 984869,
+      "camera": [
+        -491.5577676563539,
+        21.653371019470804,
+        -946.8968917933636
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "coast",
+      "calls": 337,
+      "triangles": 839899,
+      "camera": [
+        99.24951449782564,
+        27.553363904903286,
+        -1100.0427640557984
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "fields",
+      "calls": 277,
+      "triangles": 746182,
+      "camera": [
+        1177.2691224938033,
+        113.77251600909712,
+        -153.2380139982265
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "valley",
+      "calls": 359,
+      "triangles": 1166822,
+      "camera": [
+        823.0499160023729,
+        140.4922921497606,
+        699.8101476949844
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "lake",
+      "calls": 387,
+      "triangles": 906260,
+      "camera": [
+        -355.30085613298667,
+        181.2736117713497,
+        1002.7983079516654
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "summit",
+      "calls": 419,
+      "triangles": 1120379,
+      "camera": [
+        -1127.4737859149166,
+        236.14718186182654,
+        464.9848470589593
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "lighthouse",
+      "calls": 140,
+      "triangles": 758632,
+      "camera": [
+        293.6042719000947,
+        34.19813581215712,
+        -1124.4983984551052
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "bridge",
+      "calls": 335,
+      "triangles": 1200390,
+      "camera": [
+        803.264069632905,
+        132.52431002968092,
+        817.9263345342628
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "shop",
+      "calls": 293,
+      "triangles": 939272,
+      "camera": [
+        -479.5681582941256,
+        20.353371019470806,
+        -942.3969732006369
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    },
+    {
+      "pose": "tree",
+      "calls": 246,
+      "triangles": 1102202,
+      "camera": [
+        875.7175672457976,
+        136.6405373062891,
+        628.0851333468157
+      ],
+      "stats": {
+        "instances": 43256,
+        "batches": 2618,
+        "treeCount": 1948,
+        "houseCount": 24
+      }
+    }
+  ]
+}

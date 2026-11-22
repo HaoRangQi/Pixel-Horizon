@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "snapshot": {
+    "screen": "drive",
+    "mood": "day",
+    "view": 0,
+    "viewName": "追尾视角",
+    "fps": 60,
+    "speed": 53,
+    "rpm": 8533,
+    "gear": 1,
+    "fuel": 0.9399403614482149,
+    "coolant": 78.32457585620813,
+    "odometer": 10.002185650299719,
+    "heading": 2.135982485492562,
+    "steer": 0,
+    "position": [
+      -596.3374557149674,
+      20.173652798091315,
+      -881.2308732429896
+    ],
+    "region": "晴湾小镇",
+    "t": 0.005325745114034719,
+    "cruise": false,
+    "draws": 717,
+    "triangles": 1483593
+  },
+  "errors": [],
+  "externalRequests": []
+}

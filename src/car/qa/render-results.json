@@ -1,0 +1,108 @@
+{
+  "front": {
+    "state": {
+      "speed": 0,
+      "rpm": 1350,
+      "gear": "N",
+      "fuel": 0.94,
+      "coolant": 78,
+      "odometer": 0,
+      "turnSignal": 0,
+      "time": 0.1
+    },
+    "needle": -2.8863382504856223,
+    "drawCallsIncludingShadows": 113,
+    "trianglesIncludingShadows": 485296
+  },
+  "side": {
+    "state": {
+      "speed": 0,
+      "rpm": 1350,
+      "gear": "N",
+      "fuel": 0.94,
+      "coolant": 78,
+      "odometer": 0,
+      "turnSignal": 0,
+      "time": 0.1
+    },
+    "needle": -2.8863382504856223,
+    "drawCallsIncludingShadows": 113,
+    "trianglesIncludingShadows": 485296
+  },
+  "rear": {
+    "state": {
+      "speed": 0,
+      "rpm": 1350,
+      "gear": "N",
+      "fuel": 0.94,
+      "coolant": 78,
+      "odometer": 0,
+      "turnSignal": 0,
+      "time": 0.1
+    },
+    "needle": -2.8863382504856223,
+    "drawCallsIncludingShadows": 113,
+    "trianglesIncludingShadows": 485296
+  },
+  "idle": {
+    "state": {
+      "speed": 0,
+      "rpm": 1350,
+      "gear": "N",
+      "fuel": 0.94,
+      "coolant": 78,
+      "odometer": 0,
+      "turnSignal": 0,
+      "time": 0.1
+    },
+    "needle": -2.8863382504856223,
+    "drawCallsIncludingShadows": 131,
+    "trianglesIncludingShadows": 503478
+  },
+  "running": {
+    "state": {
+      "speed": 48.5,
+      "rpm": 8600,
+      "gear": 4,
+      "fuel": 0.71,
+      "coolant": 94,
+      "odometer": 12480,
+      "turnSignal": 1,
+      "time": 0.1
+    },
+    "needle": -5.733406592801373,
+    "drawCallsIncludingShadows": 131,
+    "trianglesIncludingShadows": 503478
+  },
+  "sunset": {
+    "state": {
+      "speed": 48.5,
+      "rpm": 8600,
+      "gear": 4,
+      "fuel": 0.71,
+      "coolant": 94,
+      "odometer": 12480,
+      "turnSignal": 1,
+      "time": 0.1
+    },
+    "needle": -5.733406592801373,
+    "drawCallsIncludingShadows": 131,
+    "trianglesIncludingShadows": 503478
+  },
+  "sunsetFront": {
+    "state": {
+      "speed": 0,
+      "rpm": 1350,
+      "gear": "N",
+      "fuel": 0.94,
+      "coolant": 78,
+      "odometer": 0,
+      "turnSignal": 0,
+      "time": 0.1
+    },
+    "needle": -2.8863382504856223,
+    "drawCallsIncludingShadows": 113,
+    "trianglesIncludingShadows": 485296
+  },
+  "errors": []
+}
