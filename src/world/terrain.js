@@ -41,7 +41,7 @@ export function createLandscape(route) {
     return { distance: Math.sqrt(best), y: yy };
   }
 
-  function height(x, z, suppliedQuery) {
+  function baseHeight(x, z, suppliedQuery) {
     const q = suppliedQuery || route.query(x, z);
     const broad = Math.sin(x * 0.0031 + 0.7) * Math.cos(z * 0.0035 - 1.1);
     const detail = Math.sin(x * 0.013 + Math.sin(z * 0.009)) * Math.cos(z * 0.012);
@@ -101,9 +101,26 @@ export function createLandscape(route) {
     h=THREE.MathUtils.lerp(h,Math.min(h,q.y-.16),1-smooth(10.2,18,q.distance));
     return h;
   }
+  // Branch roads settle their elevation on the already-shaped main landscape, then
+  // carve a corridor of their own. Keeping the two passes separate avoids a circular
+  // dependency between road heights and terrain heights.
+  route.finalizeBranches(baseHeight);
+
+  function height(x, z, suppliedQuery) {
+    let h = baseHeight(x, z, suppliedQuery);
+    const branch = route.branchQuery(x, z);
+    if (branch && branch.distance < 80) {
+      const flat = 1 - smooth(11, 55, branch.distance);
+      h = THREE.MathUtils.lerp(h, Math.min(h, branch.y - 0.2), flat);
+      h = THREE.MathUtils.lerp(h, Math.min(h, branch.y - 0.16), 1 - smooth(10.2, 18, branch.distance));
+    }
+    return h;
+  }
+
   route.road.groundHeight = (x, z) => {
-    const q = route.query(x, z);
-    return q.distance <= route.road.width / 2 + 0.2 ? q.y : height(x, z, q);
+    const q = route.networkQuery(x, z);
+    if (q.distance <= q.width / 2 + 0.25) return q.y;
+    return height(x, z, route.query(x, z));
   };
   return { height, lake, riverCurve, riverPoints, riverQuery, pads, lighthouse, waterfall, bridgeT };
 }
@@ -165,6 +182,37 @@ export function addTerrain(scene, route, landscape) {
     bandIndices.push(n, n + cross.length, n + 1, n + 1, n + cross.length, n + cross.length + 1);
   }
   makeMesh(bandVertices, bandColors, bandIndices, 'detailed-roadside-landform');
+
+  // A finer skirt around each branch keeps its cut-and-fill shoulders readable at
+  // 12.5 m terrain resolution. Quads within 58 m of a junction are skipped so the
+  // main skirt and the neighbouring branch skirt own that ground without z-fighting.
+  const branchCross = [-32, -24, -18, -13, -9.5, -6.5, -4.5, -2, 0, 2, 4.5, 6.5, 9.5, 13, 18, 24, 32];
+  const branchVertices = [], branchColors = [], branchIndices = [];
+  const shoulderColor = new THREE.Color(0xaaa27b);
+  for (const line of route.branches) {
+    const segments = Math.max(24, Math.ceil(line.length / 3.0));
+    const base = branchVertices.length / 3;
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      for (const side of branchCross) {
+        const f = line.frame(t, side), q = route.query(f.position.x, f.position.z);
+        const y = landscape.height(f.position.x, f.position.z, q) + 0.016;
+        branchVertices.push(f.position.x, y, f.position.z);
+        const [r, g, b] = tint(f.position.x, y, f.position.z, q);
+        color.setRGB(r, g, b).lerp(shoulderColor, (1 - smooth(10.5, 20, Math.abs(side))) * 0.36);
+        branchColors.push(color.r, color.g, color.b);
+      }
+    }
+    for (let i = 0; i < segments; i++) {
+      const mid = line.frame((i + 0.5) / segments, 0).position;
+      if (line.anchors.some((a) => Math.hypot(a.x - mid.x, a.z - mid.z) < 58)) continue;
+      for (let j = 0; j < branchCross.length - 1; j++) {
+        const n = base + i * branchCross.length + j;
+        branchIndices.push(n, n + branchCross.length, n + 1, n + 1, n + branchCross.length, n + branchCross.length + 1);
+      }
+    }
+  }
+  makeMesh(branchVertices, branchColors, branchIndices, 'detailed-branch-landform');
   addMountainLayers(scene);
   return terrain;
 }

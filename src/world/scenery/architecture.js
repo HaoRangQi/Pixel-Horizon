@@ -29,7 +29,7 @@ export function addBuildings(batches, route, landscape, materials) {
     const f = route.frame(t, lateral), x = f.position.x, z = f.position.z;
     const yaw = f.heading + (lateral < 0 ? Math.PI / 2 : -Math.PI / 2), y = landscape.height(x, z);
     const w = 7.3 + rng() * 4.6, d = 6.7 + rng() * 3.9, h = type === 'cabin' ? 3.2 : type === 'farm' ? 4.7 : 5.8 + rng() * 1.2;
-    if (y < 4 || route.query(x, z).distance < Math.hypot(w, d) * .5 + 11) return;
+    if (y < 4 || Math.min(route.query(x, z).distance, route.branchDistance(x, z)) < Math.hypot(w, d) * .5 + 11) return;
     if (Math.abs(landscape.height(x + w / 2, z) - y) > 3 || Math.abs(landscape.height(x, z + d / 2) - y) > 3) return;
     if (landscape.pads.some((p) => Math.hypot(x - p.x, z - p.z) < p.radius + 11)) return;
     const front = d / 2, wall = wallColors[id % wallColors.length], terracotta = roofColors[id % roofColors.length], shutter = shutterColors[id % shutterColors.length];
@@ -232,7 +232,7 @@ export function addFields(batches, scene, route, landscape, materials) {
     const t = .279 + rng() * .121, side = i < 2050 ? -1 : 1;
     const lateral = side * (21 + Math.floor(rng() * 20) * 3.2 + rng() * .45);
     const f = route.frame(t, lateral), p = f.position;
-    if (route.query(p.x, p.z).distance < 18) continue;
+    if (Math.min(route.query(p.x, p.z).distance, route.branchDistance(p.x, p.z)) < 18) continue;
     const height = .75 + rng() * .42;
     batches.add('ripe-wheat-ear-clusters', wheat, materials.plant, { x: p.x, y: landscape.height(p.x, p.z) + .16, z: p.z,
       sx: height, sy: height, sz: height, yaw: rng() * TAU, color: 0xfff1ce }, { band: 'detail', shadow: false });

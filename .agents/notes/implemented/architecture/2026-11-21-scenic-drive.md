@@ -8,7 +8,7 @@ Status: implemented
 
 ## Decision
 
-本项目采用 Three.js 真 3D、程序化车辆和山海场景。道路是位置、高度、航向与路段进度的唯一几何依据：world 提供 `sample`、`nearest` 与 `groundHeight`，驾驶、相机、地图和电脑对手消费同一条道路。
+本项目采用 Three.js 真 3D、程序化车辆和山海场景。道路是位置、高度、航向与路段进度的唯一几何依据：world 提供 `sample`、`nearest` 与 `groundHeight`，驾驶、相机、地图和电脑对手消费同一条道路。后续扩充的支线网络仍遵守这条契约，只是通过路线索引增加 `sampleOn`、`route` 与带偏好的 `nearest`，见[可行驶路网的支线与共享路口](../feature/2026-11-23-expanded-road-network.md)。
 
 `drive.js` 以 1/120 秒固定步长更新车辆状态；`car.js` 只负责模型与轮子、方向盘、车身反馈，不能改 root 的位置和航向。`camera.js` 只消费车辆状态与道路，四视角切换不会重置行驶。`main.js` 持有输入、屏幕与比赛状态，恢复驾驶时统一退出摄影；`ui.js` 只呈现状态和发出动作。
 

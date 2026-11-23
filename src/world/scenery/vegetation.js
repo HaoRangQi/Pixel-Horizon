@@ -140,7 +140,8 @@ export function addVegetation(batches, route, landscape, materials, housePlots =
   function plantTree(t, lateral, force = false) {
     const f = route.frame(t, lateral), x = f.position.x + (rng() - .5) * 7, z = f.position.z + (rng() - .5) * 7;
     const q = route.query(x, z), y = landscape.height(x, z, q), inTown = q.t < .09 || q.t > .95;
-    if (y < 3 || q.distance < (inTown ? 18 : 17)) return;
+    const clearance = Math.min(q.distance, route.branchDistance(x, z));
+    if (y < 3 || clearance < (inTown ? 18 : 17)) return;
     const coast = q.t > .065 && q.t < .26;
     if (coast && q.lateral > 12) return;
     if (inTown && q.lateral > 0) return;
@@ -192,7 +193,7 @@ export function addVegetation(batches, route, landscape, materials, housePlots =
   for (let i = 0; i < 18500; i++) {
     const t = rng(), distance = 10.7 + rng() ** 1.8 * 35, side = rng() < .5 ? -1 : 1;
     const f = route.frame(t, side * distance), x = f.position.x, z = f.position.z, y = landscape.height(x, z);
-    if (y < 3 || route.query(x, z).distance < 10.3) continue;
+    if (y < 3 || Math.min(route.query(x, z).distance, route.branchDistance(x, z)) < 10.3) continue;
     const lakeR = Math.hypot((x - landscape.lake.x) / landscape.lake.rx, (z - landscape.lake.z) / landscape.lake.rz);
     if (lakeR < 1.02 && y < landscape.lake.y + .4) continue;
     if (landscape.pads.some((p) => Math.hypot(x - p.x, z - p.z) < p.radius - 5)) continue;
@@ -209,7 +210,7 @@ export function addVegetation(batches, route, landscape, materials, housePlots =
   for (let i = 0; i < 1850; i++) {
     const t = rng(), side = (rng() < .5 ? -1 : 1), far = i < 400;
     const f = route.frame(t, side * (far ? 36 + rng() * 150 : 10.8 + rng() * 8)), x = f.position.x, z = f.position.z, y = landscape.height(x, z);
-    if (y < -3 || route.query(x, z).distance < 10.5) continue;
+    if (y < -3 || Math.min(route.query(x, z).distance, route.branchDistance(x, z)) < 10.5) continue;
     if (Math.hypot((x - landscape.lake.x) / landscape.lake.rx, (z - landscape.lake.z) / landscape.lake.rz) < 1.03 && y < landscape.lake.y) continue;
     const scale = far ? .7 + rng() ** 2 * 2.8 : .1 + rng() ** 2 * .55;
     batches.add('weathered-verge-stones', rocks[i % 3], materials.rock,
@@ -222,7 +223,7 @@ export function addVegetation(batches, route, landscape, materials, housePlots =
   for (let i = 0; i < 1400; i++) {
     const t = .415 + rng() * .145, f = route.frame(t, (rng() < .5 ? -1 : 1) * (9.8 + rng() * 17));
     const y = landscape.height(f.position.x, f.position.z);
-    if (route.query(f.position.x, f.position.z).distance < 9.3) continue;
+    if (Math.min(route.query(f.position.x, f.position.z).distance, route.branchDistance(f.position.x, f.position.z)) < 9.3) continue;
     batches.add('fallen-autumn-leaves', fallen, fallenMat, { x: f.position.x, y: y + .05, z: f.position.z, yaw: rng() * TAU,
       rx: (rng() - .5) * .2, sx: .6 + rng() * .9, sz: .6 + rng() * .8, color: autumn[i % autumn.length] }, { band: 'detail', shadow: false });
   }

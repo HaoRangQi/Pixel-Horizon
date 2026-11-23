@@ -15,6 +15,8 @@ export function addFurniture(batches, scene, route, landscape, m) {
     const t=i*5/route.road.length,coast=t>.075&&t<.265,mountain=t>.708&&t<.923;
     if(!coast&&!mountain)continue;
     if(landscape.pads.some((p)=>Math.abs(t-p.t)*route.road.length<p.radius+8))continue;
+    const junctionGap=route.mainJunctions.some((j)=>{const d=Math.abs(t-j.t);return Math.min(d,1-d)*route.road.length<j.width+26;});
+    if(junctionGap)continue;
     for(const side of coast?[8.12]:[-8.12,8.12]){
       const a=route.frame(t,side),b=route.frame(t+5/route.road.length,side);
       batches.add('galvanized-guardrail-posts',post,m.metal,{x:a.position.x,y:a.position.y+.58,z:a.position.z,yaw:a.heading,color:0xa3afa9});
@@ -28,6 +30,7 @@ export function addFurniture(batches, scene, route, landscape, m) {
   }
   for(let i=0;i<30;i++){
     const t=-.021+i*.0038,f=route.frame(t,-10.8),p=f.position,yaw=f.heading;
+    if(route.branchDistance(p.x,p.z)<15)continue;
     batches.column('town-lamp-stems',m.darkMetal,{x:p.x,y:p.y+2.42,z:p.z,sx:.065,sy:4.84,sz:.065});
     batches.column('town-lamp-plinths',m.darkMetal,{x:p.x,y:p.y+.25,z:p.z,sx:.19,sy:.5,sz:.19});
     const head=point(p.x,p.z,yaw,0,.22,p.y+4.7);
@@ -80,7 +83,7 @@ export function addFurniture(batches, scene, route, landscape, m) {
     batches.add(`lookout-information-print-${index}`,new THREE.PlaneGeometry(1.21,.77).rotateX(-Math.PI/2),signMaterial(words,0x52655c),{...sign,y:sign.y+1.47,yaw:viewYaw,rx:.25});
     for(let i=0;i<36;i++){
       const a=i/36*TAU,b=(i+1)/36*TAU,r=pad.radius-3.1,x=pad.x+Math.cos(a)*r,z=pad.z+Math.sin(a)*r;
-      if(route.query(x,z).distance<14)continue;
+      if(route.query(x,z).distance<14||route.branchDistance(x,z)<12)continue;
       if(dockGate&&Math.hypot(x-dockGate.x,z-dockGate.z)<5)continue;
       const y=landscape.height(x,z),next={x:pad.x+Math.cos(b)*r,z:pad.z+Math.sin(b)*r};next.y=landscape.height(next.x,next.z);
       batches.box('lookout-wooden-railing-posts',m.wood,{x,y:y+.55,z,sx:.15,sy:1.1,sz:.15,color:0x8a7b5b});
