@@ -41,8 +41,10 @@
         <div class="route-widget">
           <button id="open-map" class="minimap-button" aria-label="打开地图，前往其他景区" title="M 打开地图"><canvas id="minimap" width="320" height="240"></canvas><span class="minimap-north">N</span><span class="minimap-expand">↗</span></button>
           <div class="route-caption"><span class="route-dot"></span><strong>山海环线</strong><span id="trip-distance">0.0 km</span></div>
+          <div class="nav-caption" id="nav-state" hidden></div>
         </div>
         <div class="speed-widget">
+          <div class="cruise-state" id="autopilot-state"><span></span><em id="autopilot-label">自动驾驶</em></div>
           <div class="cruise-state" id="cruise-state"><span></span>观光巡航</div>
           <div class="speed-line"><span class="gear" id="gear">N</span><strong id="speed">000</strong><span class="speed-unit">km/h</span></div>
           <div class="rev-track" id="rev-track" aria-hidden="true"></div>
@@ -68,12 +70,12 @@
           <button class="close-button" id="close-map" aria-label="关闭地图">×</button>
           <div class="map-heading"><p class="eyebrow">THE SCENIC ROUTE</p><h2>下一站，想去哪里？</h2><p>沿着公路慢慢探索，也可以直接抵达。</p></div>
           <div class="map-content"><div class="large-map"><canvas id="large-map" width="840" height="720"></canvas><span class="map-note">山海环线 <b>·</b> SIX PLACES TO GET LOST</span></div><div id="destination-list"></div></div>
-          <div class="map-footer"><span>兜风没有终点，随时可以停下来。</span><button id="race-button" class="button-quiet">来一场短程赛 <span>↗</span></button></div>
+          <div class="map-footer"><span>点 ◎ 把景区设为导航终点 · 兜风没有终点。</span><div class="map-footer-actions"><button id="clear-goal" class="button-quiet" hidden>清除终点</button><button id="autopilot-button" class="button-quiet" aria-pressed="false">自动驾驶 <span>B</span></button><button id="race-button" class="button-quiet">来一场短程赛 <span>↗</span></button></div></div>
         </div>
       </section>
 
       <section id="pause-panel" class="overlay" hidden aria-label="暂停菜单">
-        <div class="pause-shell"><p class="eyebrow">TAKE YOUR TIME</p><h2>风景会等你。</h2><p id="pause-description">休息一下，随时回来继续兜风。</p><button id="resume-button" class="primary-button">继续旅程 <span>↗</span></button><button id="reset-button" class="button-quiet">回到公路 <kbd>R</kbd></button><p class="pause-help">WASD / 方向键 驾驶　·　空格 手刹<br />C 视角　F 巡航　M 地图　G 换车　P 观景　T 日光</p></div>
+        <div class="pause-shell"><p class="eyebrow">TAKE YOUR TIME</p><h2>风景会等你。</h2><p id="pause-description">休息一下，随时回来继续兜风。</p><button id="resume-button" class="primary-button">继续旅程 <span>↗</span></button><button id="reset-button" class="button-quiet">回到公路 <kbd>R</kbd></button><p class="pause-help">WASD / 方向键 驾驶　·　空格 手刹<br />C 视角　F 巡航　M 地图　G 换车　P 观景　T 日光<br />N 导航　B 自动驾驶　◎ 地图里设终点</p></div>
       </section>
 
       <section id="photo-hud" hidden><div><span class="photo-dot"></span>观景模式</div><p>拖动鼠标环视 <b>·</b> 滚轮调节距离</p><button id="exit-photo">返回驾驶 <kbd>P</kbd></button></section>

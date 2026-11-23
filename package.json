@@ -14,6 +14,7 @@
     "verify:standalone": "node tools/verify-standalone.mjs",
     "verify:cruise": "node tools/verify-cruise.mjs",
     "verify:garage": "node tools/verify-garage.mjs",
+    "verify:navigation": "node tools/verify-navigation.mjs",
     "verify:memory": "node tools/verify-memory.mjs",
     "record:instruments": "node tools/record-instruments.mjs"
   },
