@@ -1,0 +1,54 @@
+{
+  "baseURL": "http://127.0.0.1:5174/",
+  "checks": [
+    "sunny-day exposure is active on first load",
+    "day scenes stay bright without clipped highlights",
+    "draw calls and frame rate stay within the scene budget",
+    "mood toggle keeps the calibrated day exposure",
+    "no page errors during the lighting pass"
+  ],
+  "scenes": [
+    {
+      "name": "garage-showcase",
+      "averageLuma": 97.55,
+      "clippedRatio": 0,
+      "maxLuma": 250.6,
+      "pixels": 1296000,
+      "draws": 517,
+      "triangles": 1483595,
+      "fps": 60
+    },
+    {
+      "name": "lighthouse-coast",
+      "averageLuma": 125.21,
+      "clippedRatio": 0,
+      "maxLuma": 248.7,
+      "pixels": 1296000,
+      "draws": 452,
+      "triangles": 1301240,
+      "fps": 60
+    },
+    {
+      "name": "golden-fields",
+      "averageLuma": 134.14,
+      "clippedRatio": 0,
+      "maxLuma": 248.7,
+      "pixels": 1296000,
+      "draws": 405,
+      "triangles": 1293640,
+      "fps": 60
+    },
+    {
+      "name": "mountain-pass-high",
+      "averageLuma": 129.78,
+      "clippedRatio": 0.00001,
+      "maxLuma": 254,
+      "pixels": 1296000,
+      "draws": 547,
+      "triangles": 1770699,
+      "fps": 60
+    }
+  ],
+  "status": "passed",
+  "errors": []
+}

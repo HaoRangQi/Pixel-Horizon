@@ -55,6 +55,8 @@ npm run preview -- --port 5174
 
 `npm run verify:instruments` 在实际驾驶中核对车内仪表与驾驶状态，并保存静止、加速和日落画面。机械逻辑测试也覆盖左右真实相机投影、倒车、高速回正、自动换挡、温度与燃油、转向灯和完整环线。`npm run verify:memory` 在真实 Chrome 中驾驶 60 秒并连续换车 12 次，检查 JS 堆与 WebGL 资源不随换车增长。
 
+`npm run verify:lighting` 在车库、灯塔海岸、金穗原野和云上垭口实拍测光，断言白天曝光首屏即生效、画面平均亮度达标且中央区域高光裁切不超过 0.5%，同时复核切换日落后曝光正确、帧率与绘制调用不超预算；测光数据写入 `shots/light/lighting-results.json`，白天调优的前后对比截图保存在 `shots/light/`。
+
 > ⚠️ 验证脚本里**不要**把 Three.js 对象直接传给 `assert.equal` / `assert.deepEqual`：断言失败时 Node 会打印整张场景图（循环引用、全部顶点与纹理），单进程几十秒可涨到 10 GB 以上并冻结机器。事故复盘与排查清单见 [Node 断言打印 Three.js 场景图导致内存暴涨](.agents/notes/implemented/testing/2026-11-22-node-assert-scene-graph-memory.md)。
 
 本版未加入动态天气、完整昼夜循环、车辆改装与多人联机。风景沿主公路和观景停车点布置；后续可根据试玩反馈继续打磨景观细节与车辆手感。

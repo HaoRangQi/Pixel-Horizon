@@ -24,7 +24,7 @@ function boot() {
   renderer.setPixelRatio(1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.97;
+  renderer.toneMappingExposure = 1.12;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.info.autoReset = false;
@@ -32,7 +32,7 @@ function boot() {
   const camera = new THREE.PerspectiveCamera(54, innerWidth / innerHeight, 0.06, 10000);
   const environment = createOutdoorEnvironment(renderer);
   scene.environment = environment.texture;
-  scene.environmentIntensity = 0.45;
+  scene.environmentIntensity = 0.62;
 
   const world = createWorld(scene);
   const { road, regions } = world;
@@ -221,7 +221,9 @@ function boot() {
   }
   addEventListener('resize', resize);
   resize();
-  world.setMood(mood);
+  // Apply the mood's exposure at boot too: before this, the first load ran at the
+  // renderer default while pressing T twice showed a measurably brighter day.
+  renderer.toneMappingExposure = world.setMood(mood).exposure;
   placeCar();
   rig.update(1, state, { showcase: true, time: 0 });
 

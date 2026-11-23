@@ -3,9 +3,10 @@ import * as THREE from 'three';
 export function createOutdoorEnvironment(renderer) {
   const width = 512, height = 256;
   const data = new Float32Array(width * height * 4);
-  const sky = new THREE.Color(0x79b2d5), horizon = new THREE.Color(0xd9dfcf);
-  const ground = new THREE.Color(0x5d6653), color = new THREE.Color();
-  const sun = new THREE.Vector3(-0.52, 0.4, -0.71).normalize();
+  const sky = new THREE.Color(0x7fbfe6), horizon = new THREE.Color(0xe3eee6);
+  const ground = new THREE.Color(0x6d7862), color = new THREE.Color();
+  // Keep the IBL sun highlight aligned with the shader sky and the key light.
+  const sun = new THREE.Vector3(-0.48, 0.69, -0.53).normalize();
   for (let y = 0; y < height; y++) {
     const theta = Math.PI * (y + 0.5) / height;
     const elevation = Math.cos(theta);
@@ -16,9 +17,9 @@ export function createOutdoorEnvironment(renderer) {
       else color.copy(horizon).lerp(ground, Math.min(1, -elevation * 3.5));
       const glow = Math.pow(Math.max(0, direction.dot(sun)), 850) * 8;
       const offset = (y * width + x) * 4;
-      data[offset] = color.r * 0.9 + glow;
-      data[offset + 1] = color.g * 0.9 + glow * 0.87;
-      data[offset + 2] = color.b * 0.9 + glow * 0.64;
+      data[offset] = color.r + glow;
+      data[offset + 1] = color.g + glow * 0.89;
+      data[offset + 2] = color.b + glow * 0.7;
       data[offset + 3] = 1;
     }
   }
