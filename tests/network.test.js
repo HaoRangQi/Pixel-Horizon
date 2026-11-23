@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoute } from '../src/world/route.js';
 import { createLandscape } from '../src/world/terrain.js';
-import { createDriver, stepDriver, followRoad, resetDriver } from '../src/drive.js';
+import { createDriver, stepDriver, followRoad, resetDriver, angleDelta } from '../src/drive.js';
 
 const route = createRoute();
 const landscape = createLandscape(route);
@@ -18,10 +18,10 @@ function cornerRadius(line, i, window = 3) {
   return area < 1e-6 ? Infinity : (ab * bc * ca) / (4 * area);
 }
 
-test('the network exposes seven connected branches beyond the main loop', () => {
-  assert.equal(branches.length, 7);
-  assert.deepEqual(branches.map((line) => line.id), [1, 2, 3, 4, 5, 6, 7]);
-  assert.equal(new Set(branches.map((line) => line.name)).size, 7);
+test('the network exposes ten connected branches beyond the main loop', () => {
+  assert.equal(branches.length, 10);
+  assert.deepEqual(branches.map((line) => line.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.equal(new Set(branches.map((line) => line.name)).size, 10);
   assert.ok(branches.every((line) => line.name.length > 0 && !line.closed));
   assert.ok(branches.every((line) => line.kind === 'secondary' || line.kind === 'trail'));
   const branchLength = branches.reduce((sum, line) => sum + line.length, 0);
@@ -30,7 +30,7 @@ test('the network exposes seven connected branches beyond the main loop', () => 
   assert.ok(branches.some((line) => line.length > 1500), 'the network needs at least one long route');
   assert.ok(branches.some((line) => line.length < 400), 'the network needs at least one short spur');
 
-  assert.equal(route.mapPaths.length, 8);
+  assert.equal(route.mapPaths.length, 11);
   assert.equal(route.mapPaths[0].closed, true);
   assert.ok(route.mapPaths.every((path) => path.points.length > 2 && Number.isFinite(path.width)));
   assert.ok(route.mainJunctions.length >= 8);
@@ -161,5 +161,94 @@ test('the main-loop cruise never turns onto a branch mouth it passes', () => {
     const lane = route.frame(junction.t, -main.width * 0.25).position;
     const hit = road.nearest(lane.x, lane.z, 0);
     assert.equal(hit.route, 0, `cruise would leave the main in its right lane at t=${junction.t}`);
+  }
+});
+
+test('interior roads connect west, east and the lake without using the outer loop', () => {
+  const neighbours = (line) => branches.filter((other) => other !== line &&
+    line.anchors.some((a) => a.kind === 'node' && other.anchors.some((b) => b.node === a.node)));
+  const reached = new Set([branches[0].id]), pending = [branches[0]];
+  while (pending.length) {
+    for (const next of neighbours(pending.pop())) {
+      if (!reached.has(next.id)) { reached.add(next.id); pending.push(next); }
+    }
+  }
+  assert.equal(reached.size, branches.length, 'east and west must connect through the interior');
+  const crossings = new Map();
+  for (const line of branches) for (const a of line.anchors) {
+    if (a.kind !== 'node') continue;
+    const arms = a.index > 5 && a.index < line.count - 6 ? 2 : 1;
+    crossings.set(a.node, (crossings.get(a.node) || 0) + arms);
+  }
+  assert.ok([...crossings.values()].some((arms) => arms >= 4), 'the interior needs a real four-way crossing');
+  assert.ok(branches.some((line) => line.def.startT > 0.56 && line.def.startT < 0.65),
+    'the lake destination needs an entrance to the interior');
+});
+
+test('the physical landscape supports branch pavement except at declared bridges', () => {
+  for (const line of branches) for (let i = 6; i < line.count - 6; i += 9) {
+    const t = i / (line.count - 1), bridge = line.def.bridge;
+    if (bridge && t >= bridge.from - 0.035 && t <= bridge.to + 0.035) continue;
+    const p = line.samples[i], ground = landscape.height(p.x, p.z);
+    assert.ok(p.y - ground < 0.35 && p.y - ground > 0.08,
+      `${line.name} sample ${i}: pavement is ${(p.y - ground).toFixed(2)}m above actual terrain`);
+  }
+});
+
+test('the lake connection crosses water on a bridge with clearance', () => {
+  const line = branches.find((b) => b.def.startT > 0.56 && b.def.startT < 0.65);
+  assert.ok(line, 'a lake-to-interior road is required');
+  let overWater = 0;
+  for (let i = 0; i < line.count; i++) {
+    const p = line.samples[i], t = i / (line.count - 1);
+    const lakeR = Math.hypot((p.x - landscape.lake.x) / landscape.lake.rx, (p.z - landscape.lake.z) / landscape.lake.rz);
+    const river = landscape.riverQuery(p.x, p.z);
+    if (lakeR >= 1 && river.distance >= 40) continue;
+    overWater++;
+    assert.ok(line.def.bridge && t >= line.def.bridge.from && t <= line.def.bridge.to, 'water crossing needs a bridge');
+    const waterY = Math.max(lakeR < 1 ? landscape.lake.y : -Infinity, river.distance < 40 ? river.y : -Infinity);
+    assert.ok(p.y > waterY + 3, 'bridge deck needs clearance over water');
+    if (main.query(p.x, p.z).distance > 20) {
+      assert.ok(landscape.height(p.x, p.z) < waterY, 'the bridge must preserve the river/lake underneath');
+    }
+  }
+  assert.ok(overWater > 5, 'verify an actual water crossing');
+});
+
+test('a car can turn both ways from the cross-island road at the central junction', () => {
+  const from = route.lines[8], to = route.lines[9];
+  const entry = from.anchors.find((a) => a.node === 'C0'), exit = to.anchors.find((a) => a.node === 'C0');
+  for (const direction of [-1, 1]) {
+    const driver = createDriver(road);
+    resetDriver(driver, road, entry.index / (from.count - 1) - 50 / from.length, from.id);
+    let turned = false, jump = 0, lastY = driver.y;
+    for (let i = 0; i < 120 * 30; i++) {
+      let input = followRoad(driver, road, 6);
+      if (driver.x >= entry.x - 17) {
+        const nearest = to.query(driver.x, driver.z);
+        const p = to.frame(nearest.t + direction * (4 + Math.abs(driver.speed) * 0.5) / to.length, -direction * to.width * 0.25).position;
+        const heading = Math.atan2(p.x - driver.x, p.z - driver.z);
+        input = { throttle: Math.max(0, Math.min(1, (6 - driver.speed) * 0.3)),
+          brake: Math.max(0, Math.min(0.6, (driver.speed - 6) * 0.2)),
+          steer: Math.max(-1, Math.min(1, -angleDelta(heading, driver.heading) * 2.6)) };
+      }
+      stepDriver(driver, input, 1 / 120, road);
+      jump = Math.max(jump, Math.abs(driver.y - lastY)); lastY = driver.y;
+      if (driver.route === to.id && Math.abs(driver.t - exit.index / (to.count - 1)) * to.length > 45) { turned = true; break; }
+    }
+    assert.ok(turned, `junction turn ${direction} never reached the other road`);
+    assert.ok(jump < 0.06, `junction turn ${direction} produced a vertical step`);
+  }
+});
+
+test('bounded branch queries exclude distant roads and keep nearby results exact', () => {
+  for (const [x, z, radius] of [[2200, 2200, 80], [-2100, -1800, 30], [-100, -140, 30], [450, -100, 80], [-600, 100, 30]]) {
+    const full = route.branchQuery(x, z), bounded = route.branchQuery(x, z, radius);
+    if (full.distance > radius) assert.ok(bounded === null, 'terrain queries must reject roads outside the requested radius');
+    else {
+      assert.ok(bounded !== null, 'a nearby branch cannot disappear');
+      assert.equal(bounded.route, full.route);
+      assert.ok(Math.abs(bounded.distance - full.distance) < 1e-6);
+    }
   }
 });

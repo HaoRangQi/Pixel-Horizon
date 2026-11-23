@@ -91,8 +91,7 @@ export function createWorld(scene) {
   setMood('day');
   return {
     road:route.road,regions,followFocus,
-    // Base-map geometry for the minimap workflow. ui.js still owns drawing and
-    // navigation highlighting; branches are exposed here, not added to its DOM.
+    // Both map canvases consume these same road centre lines.
     mapPaths:route.mapPaths,mainJunctions:route.mainJunctions,
     get networkLength(){return route.lines.reduce((sum,line)=>sum+line.length,0);},
     getRegion(t) {

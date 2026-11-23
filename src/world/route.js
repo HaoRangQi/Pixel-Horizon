@@ -30,6 +30,8 @@ const BRANCH_NODES = {
   V2: { x: 430, z: -120 },
   V3: { x: 420, z: 330 },
   V5: { x: -800, z: -250 },
+  W0: { x: -450, z: -50 },
+  C0: { x: -100, z: -140 },
 };
 
 const BRANCH_KINDS = {
@@ -65,12 +67,28 @@ const BRANCH_DEFS = [
   {
     id: 6, name: '西岭盘山线', kind: 'secondary', startT: 0.72, endT: 0.86,
     points: [{ x: -880, z: 560 }, { x: -760, z: 470 }, { x: -700, z: 350 },
-      { x: -620, z: 220 }, { x: -600, z: 80 }, { x: -450, z: -50 },
+      { x: -620, z: 220 }, { x: -600, z: 80 }, { node: 'W0' },
       { x: -550, z: -200 }, { node: 'V5' }, { x: -950, z: -220 }, { x: -1100, z: -210 }],
   },
   {
     id: 7, name: '西坳连接线', kind: 'secondary', startT: 0.78,
     points: [{ x: -950, z: 150 }, { x: -850, z: 20 }, { node: 'V5' }],
+  },
+  {
+    id: 8, name: '东西横贯线', kind: 'secondary',
+    points: [{ node: 'W0' }, { node: 'C0' }, { node: 'V2' }],
+  },
+  {
+    id: 9, name: '中央纵贯线', kind: 'secondary',
+    points: [{ node: 'V1' }, { x: 260, z: -650 }, { x: -60, z: -500 },
+      { x: -230, z: -340 }, { node: 'C0' }, { x: -10, z: 100 },
+      { x: 170, z: 260 }, { node: 'V3' }],
+  },
+  {
+    id: 10, name: '湖谷联络线', kind: 'secondary', startT: 0.616,
+    bridge: { from: 0, to: 0.62, endHeight: 185 },
+    points: [{ x: -300, z: 900 }, { x: -180, z: 720 }, { x: 0, z: 530 },
+      { x: 220, z: 410 }, { node: 'V3' }],
   },
 ];
 
@@ -209,8 +227,9 @@ function createBranchIndex(lines, cellSize) {
   // Returns the nearest branch overall and, when `preferredId` names a branch, the
   // nearest point on that branch as well. The driver uses the pair for lane-style
   // hysteresis through junctions.
-  function query(x, z, preferredId = -1) {
+  function query(x, z, preferredId = -1, maxDistance = Infinity) {
     const cx = Math.floor(x / cellSize), cz = Math.floor(z / cellSize);
+    const limitSq = maxDistance * maxDistance;
     let best = Infinity, bestEntry = -1, bestU = 0;
     let preferred = null;
     stamp++;
@@ -249,9 +268,9 @@ function createBranchIndex(lines, cellSize) {
         x - (cx - radius) * cellSize, (cx + radius + 1) * cellSize - x,
         z - (cz - radius) * cellSize, (cz + radius + 1) * cellSize - z,
       );
-      if (best <= outsideDistance * outsideDistance) break;
+      if (Math.min(best, limitSq) <= outsideDistance * outsideDistance) break;
     }
-    const nearest = bestEntry < 0 ? null : (() => {
+    const nearest = bestEntry < 0 || best > limitSq ? null : (() => {
       const { line, i } = entries[bestEntry];
       return resultAt(line, i, bestU, x, z, best);
     })();
@@ -399,6 +418,13 @@ function draftElevation(line, anchors, groundY, mainQuery, mainWidth, maxGrade) 
   }
   const pinned = new Map(anchors.map((a) => [a.index, a.y]));
   for (const [i, v] of plateau) pinned.set(i, v);
+  // The lake crossing has a gently rising deck, independent of the bed below it.
+  const bridge = line.def.bridge;
+  if (bridge) for (let i = 0; i < count; i++) {
+    const t = i / (count - 1);
+    if (t < bridge.from || t > bridge.to) continue;
+    pinned.set(i, THREE.MathUtils.lerp(anchors[0].y, bridge.endHeight, (t - bridge.from) / (bridge.to - bridge.from)));
+  }
   const pin = () => { for (const [i, v] of pinned) y[i] = v; };
   for (let pass = 0; pass < 8; pass++) {
     pin();
@@ -519,7 +545,7 @@ export function createRoute() {
     road, lines, branches, main: mainLine,
     query: mainLine.query, frame: mainLine.frame, samples: mainLine.samples,
     networkQuery, branchDistance, roadDistance, mainJunctions, mapPaths,
-    branchQuery: (x, z) => branchIndex.query(x, z).nearest,
+    branchQuery: (x, z, maxDistance = Infinity) => branchIndex.query(x, z, -1, maxDistance).nearest,
     finalizeBranches,
   };
 }
@@ -572,7 +598,7 @@ function addBranchRibbons(scene, route, materials) {
   for (const line of route.branches) {
     const half = line.width / 2;
     const y = 0.045 + line.id * 0.001;
-    const trim = Math.min(0.02, 34 / line.length);
+    const trim = Math.min(0.2, 34 / line.length);
     const from = trim, to = 1 - trim;
     const segments = Math.max(24, Math.ceil((to - from) * line.length / 2.7));
     if (line.kind === 'trail') {
@@ -581,8 +607,17 @@ function addBranchRibbons(scene, route, materials) {
     } else {
       appendRibbon(surfaces.secondary.arrays, line, 0, 1, -half, half, y, segments);
       appendRibbon(surfaces.shoulder.arrays, line, 0, 1, -half - 2.4, half + 2.4, -0.06, segments);
-      appendRibbon(surfaces.paint.arrays, line, from, to, -half + 0.32, -half + 0.5, y + 0.012, Math.max(20, Math.ceil((to - from) * line.length / 3.2)));
-      appendRibbon(surfaces.paint.arrays, line, from, to, half - 0.5, half - 0.32, y + 0.012, Math.max(20, Math.ceil((to - from) * line.length / 3.2)));
+      // Leave shared crossings open instead of painting an edge line across them.
+      const cuts = line.anchors.filter((a) => a.kind === 'node').map((a) => a.index / (line.count - 1)).sort((a, b) => a - b);
+      let start = from;
+      for (const stop of [...cuts, to + 14 / line.length]) {
+        const end = Math.min(to, stop - 14 / line.length);
+        if (end > start) for (const side of [-1, 1]) {
+          const center = side * (half - 0.41);
+          appendRibbon(surfaces.paint.arrays, line, start, end, center - 0.09, center + 0.09, y + 0.012, Math.max(2, Math.ceil((end - start) * line.length / 3.2)));
+        }
+        start = Math.max(start, stop + 14 / line.length);
+      }
     }
   }
   for (const surface of Object.values(surfaces)) {

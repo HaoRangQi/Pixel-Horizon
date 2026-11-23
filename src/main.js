@@ -151,7 +151,7 @@ function boot() {
       });
     },
   };
-  const ui = createUI(regions, road, actions);
+  const ui = createUI(regions, road, actions, world.mapPaths);
   ui.sound(audio.muted);
 
   function stopRace() {

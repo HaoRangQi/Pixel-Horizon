@@ -108,10 +108,20 @@ export function createLandscape(route) {
 
   function height(x, z, suppliedQuery) {
     let h = baseHeight(x, z, suppliedQuery);
-    const branch = route.branchQuery(x, z);
+    const branch = route.branchQuery(x, z, 80);
     if (branch && branch.distance < 80) {
+      let bed = branch.y - 0.2;
+      const bridge = branch.line.def.bridge;
+      if (bridge && branch.t >= bridge.from && branch.t < bridge.to + 25 / branch.line.length) {
+        let below = Math.min(h, bed);
+        const lakeR = Math.hypot((x - lake.x) / lake.rx, (z - lake.z) / lake.rz);
+        if (lakeR < 1 && route.query(x, z).distance > 20) below = Math.min(below, lake.y - 2);
+        const river = riverQuery(x, z);
+        if (river.distance < 40) below = Math.min(below, river.y - 4);
+        bed = THREE.MathUtils.lerp(below, bed, smooth(bridge.to, bridge.to + 25 / branch.line.length, branch.t));
+      }
       const flat = 1 - smooth(11, 55, branch.distance);
-      h = THREE.MathUtils.lerp(h, Math.min(h, branch.y - 0.2), flat);
+      h = THREE.MathUtils.lerp(h, bed, flat);
       h = THREE.MathUtils.lerp(h, Math.min(h, branch.y - 0.16), 1 - smooth(10.2, 18, branch.distance));
     }
     return h;
@@ -136,6 +146,12 @@ export function addTerrain(scene, route, landscape) {
   });
   const curvature=(t)=>bends[Math.floor(((t%1+1)%1)*1800)%1800];
   const bandLimit=(q)=>{const k=curvature(q.t);return q.lateral*k>0?Math.min(100,.62/Math.max(.0001,Math.abs(k))):100;};
+  const branchOwnsGround = (x, z, radius) => {
+    const q = route.branchQuery(x, z, radius);
+    if (!q || q.distance > radius || q.line.anchors.some((a) => Math.hypot(x - a.x, z - a.z) < 72)) return false;
+    const bridge = q.line.def.bridge;
+    return !bridge || q.t < bridge.from || q.t > bridge.to;
+  };
   function tint(x, y, z, q) {
     color.copy(basePalette[regionAt(q.t)]);
     const patch = Math.sin(x * .021 + Math.sin(z * .014) * 1.8) * Math.cos(z * .024 + Math.sin(x * .013));
@@ -154,20 +170,21 @@ export function addTerrain(scene, route, landscape) {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.receiveShadow = true; mesh.name = name; scene.add(mesh); return mesh;
   }
-  const size = 360, step = 4500 / size, vertices = [], colors = [], indices = [], distances = [];
+  const size = 360, step = 4500 / size, vertices = [], colors = [], indices = [], distances = [], branchCoverage = [];
   for (let z = 0; z <= size; z++) for (let x = 0; x <= size; x++) {
     const xx = -2250 + x * step, zz = -2250 + z * step, q = route.query(xx, zz);
     const y = landscape.height(xx, zz, q);
     vertices.push(xx, y, zz); colors.push(...tint(xx, y, zz, q)); distances.push(q.distance / Math.max(15,bandLimit(q)-25));
+    branchCoverage.push(branchOwnsGround(xx, zz, 28));
   }
   for (let z = 0; z < size; z++) for (let x = 0; x < size; x++) {
     const n = z * (size + 1) + x, ns = [n, n + 1, n + size + 1, n + size + 2];
-    if (ns.every((i) => distances[i] < 1)) continue;
+    if (ns.every((i) => distances[i] < 1) || ns.every((i) => branchCoverage[i])) continue;
     indices.push(n, n + size + 1, n + 1, n + 1, n + size + 1, n + size + 2);
   }
   const terrain = makeMesh(vertices, colors, indices, 'textured-smooth-island');
   const cross = [-110,-100,-85,-70,-56,-45,-36,-29,-23,-18,-14,-11,-9.4,-7,-5,-3,0,3,5,7,9.4,11,14,18,23,29,36,45,56,70,85,100,110];
-  const segments = Math.ceil(route.road.length / 2.2), bandVertices = [], bandColors = [], bandIndices = [];
+  const segments = Math.ceil(route.road.length / 2.2), bandVertices = [], bandColors = [], bandIndices = [], bandBranchCoverage = [];
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     for (const side of cross) {
@@ -175,10 +192,12 @@ export function addTerrain(scene, route, landscape) {
       const f = route.frame(t, limited), q = route.query(f.position.x, f.position.z);
       const y = landscape.height(f.position.x, f.position.z, q) + .018;
       bandVertices.push(f.position.x, y, f.position.z); bandColors.push(...tint(f.position.x, y, f.position.z, q));
+      bandBranchCoverage.push(branchOwnsGround(f.position.x, f.position.z, 30));
     }
   }
   for (let i = 0; i < segments; i++) for (let j = 0; j < cross.length - 1; j++) {
     const n = i * cross.length + j;
+    if ([n, n + cross.length, n + 1, n + cross.length + 1].every((index) => bandBranchCoverage[index])) continue;
     bandIndices.push(n, n + cross.length, n + 1, n + 1, n + cross.length, n + cross.length + 1);
   }
   makeMesh(bandVertices, bandColors, bandIndices, 'detailed-roadside-landform');
@@ -204,6 +223,8 @@ export function addTerrain(scene, route, landscape) {
       }
     }
     for (let i = 0; i < segments; i++) {
+      const t = (i + 0.5) / segments, bridge = line.def.bridge;
+      if (bridge && t >= bridge.from && t <= bridge.to) continue;
       const mid = line.frame((i + 0.5) / segments, 0).position;
       if (line.anchors.some((a) => Math.hypot(a.x - mid.x, a.z - mid.z) < 58)) continue;
       for (let j = 0; j < branchCross.length - 1; j++) {

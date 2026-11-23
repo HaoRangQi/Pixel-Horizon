@@ -97,6 +97,37 @@ export function addBridge(batches, route, landscape, m) {
     for (const side of [-10.3, 10.3]) batches.add('bridge-river-cutwaters', new THREE.CylinderGeometry(.2, 2.2, h * .65, 4).rotateY(Math.PI / 4), m.stone,
       { ...point(f.position.x, f.position.z, f.heading, side, 0, bottom + h * .325), yaw: f.heading, color: 0xa9a28d });
   }
+  addBranchBridges(batches, route, landscape, m);
+}
+
+function addBranchBridges(batches, route, landscape, m) {
+  for (const line of route.branches) {
+    const bridge = line.def.bridge;
+    if (!bridge) continue;
+    const length = (bridge.to - bridge.from) * line.length;
+    const sections = Math.ceil(length / 5), step = length / sections;
+    for (let i = 0; i < sections; i++) {
+      const t = bridge.from + (i + 0.5) * step / line.length;
+      const f = line.sample(t), p = f.position, yaw = f.heading, rx = -Math.asin(f.tangent.y);
+      batches.box('bridge-deck-stone', m.stone, { ...p, y: p.y - 0.8, sx: line.width + 4.8, sy: 1.5, sz: step + 0.3, yaw, rx, color: 0xab9d86 });
+      if ((t - bridge.from) * line.length < 18) continue;
+      for (const side of [-1, 1]) {
+        const edge = point(p.x, p.z, yaw, side * (line.width / 2 + 1.9), 0, p.y);
+        batches.box('bridge-stone-parapets', m.stone, { ...edge, y: p.y + 0.55, sx: 0.5, sy: 1.1, sz: step + 0.15, yaw, rx, color: 0xb9aa8f });
+        batches.box('bridge-coping-stones', m.stone, { ...edge, y: p.y + 1.14, sx: 0.68, sy: 0.17, sz: step + 0.15, yaw, rx, color: 0xcfc1a4 });
+      }
+    }
+    const supports = Math.ceil(length / 28);
+    for (let i = 1; i < supports; i++) {
+      const f = line.sample(bridge.from + i / supports * (bridge.to - bridge.from));
+      for (const side of [-3.8, 3.8]) {
+        const p = point(f.position.x, f.position.z, f.heading, side, 0, f.position.y);
+        const bottom = landscape.height(p.x, p.z) - 1, height = p.y - 1.4 - bottom;
+        if (height <= 0) continue;
+        batches.box('bridge-load-bearing-piers', m.stone, { ...p, y: bottom + height / 2, sx: 1.8, sy: height, sz: 2.8, yaw: f.heading, color: 0xaaa18a });
+      }
+    }
+  }
 }
 
 function dock(batches, m, start, yaw, width, length, waterY, name) {

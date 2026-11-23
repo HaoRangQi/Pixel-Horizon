@@ -5,3 +5,4 @@
 - [已实施的状态与几何边界](../../.agents/notes/implemented/architecture/2026-11-21-scenic-drive.md)
 - [踩坑：Node 断言打印 Three.js 场景图导致内存暴涨](../../.agents/notes/implemented/testing/2026-11-22-node-assert-scene-graph-memory.md)
 - [启动与操作](../../README.md)
+- [内部联通道路与地图接入](plans/2026-11-23-connected-map.md)
