@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { FRONT_AXLE, REAR_AXLE, WHEEL_RADIUS } from './car/exterior.js';
 import { createSteering } from './car/cabin.js';
-import { BODY_ORDER, BODY_STYLES, sharedCabinGeometry } from './car/bodies.js';
+import { BODY_ORDER, BODY_STYLES, bodyGeometry, sharedCabinGeometry } from './car/bodies.js';
 import { createCoupeInstruments, createCoupeSteering } from './car/coupeCabin.js';
 import { createInstruments } from './car/instruments.js';
 import { createMaterials } from './car/materials.js';
@@ -10,12 +10,6 @@ import { createWheels } from './car/wheels.js';
 
 const TAU = Math.PI * 2;
 let shadowMap;
-const geometryCache = new Map();
-
-function cachedGeometry(style) {
-  if (!geometryCache.has(style)) geometryCache.set(style, BODY_STYLES[style].build());
-  return geometryCache.get(style);
-}
 
 function contactMap() {
   const data = new Uint8Array(64 * 128 * 4);
@@ -61,7 +55,7 @@ export function createCar({ color = null, style = 'one', garage = true } = {}) {
     const shell = new THREE.Group();
     shell.name = `body-${key}`;
     shell.visible = false;
-    install(cachedGeometry(key), materials, shell, `car-${key}`);
+    install(bodyGeometry(key), materials, shell, `car-${key}`);
     body.add(shell);
     shells.set(key, shell);
   }

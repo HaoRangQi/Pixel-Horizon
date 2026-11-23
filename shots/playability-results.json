@@ -1,5 +1,5 @@
 {
-  "baseURL": "http://127.0.0.1:5173/",
+  "baseURL": "http://127.0.0.1:5175/",
   "checks": [
     "start enters free driving",
     "real A/D key events turn the car in the conventional direction",
@@ -25,9 +25,9 @@
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398346720833751,
-      "coolant": 79.25804207780814,
-      "odometer": 54.732333224261254,
+      "fuel": 0.9398346054167083,
+      "coolant": 79.26052972054624,
+      "odometer": 54.9299152572167,
       "heading": 2.107791050402172,
       "steer": 0,
       "position": [
@@ -38,8 +38,13 @@
       "region": "晴湾小镇",
       "t": 0.02299999999999991,
       "cruise": false,
-      "draws": 677,
-      "triangles": 1422109
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 4
+      },
+      "draws": 718,
+      "triangles": 2189389
     },
     {
       "screen": "drive",
@@ -50,9 +55,9 @@
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398270887500205,
-      "coolant": 79.53421044009633,
-      "odometer": 54.732333224261254,
+      "fuel": 0.9398270220833537,
+      "coolant": 79.53657843580285,
+      "odometer": 54.9299152572167,
       "heading": 1.5516877234927426,
       "steer": 0,
       "position": [
@@ -63,8 +68,13 @@
       "region": "灯塔海岸",
       "t": 0.1060000000000001,
       "cruise": false,
-      "draws": 452,
-      "triangles": 1301240
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 4
+      },
+      "draws": 493,
+      "triangles": 2068520
     },
     {
       "screen": "drive",
@@ -77,7 +87,7 @@
       "gear": "N",
       "fuel": 0.9398194387499991,
       "coolant": 79.79935016041664,
-      "odometer": 54.732333224261254,
+      "odometer": 54.9299152572167,
       "heading": 0.08197713234087747,
       "steer": 0,
       "position": [
@@ -88,8 +98,13 @@
       "region": "金穗原野",
       "t": 0.31800000000000006,
       "cruise": false,
-      "draws": 405,
-      "triangles": 1293640
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 4
+      },
+      "draws": 446,
+      "triangles": 2060920
     },
     {
       "screen": "drive",
@@ -100,9 +115,9 @@
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398118387499778,
-      "coolant": 80.05001974873117,
-      "odometer": 54.732333224261254,
+      "fuel": 0.939811822083311,
+      "coolant": 80.05055596754602,
+      "odometer": 54.9299152572167,
       "heading": -0.7963136037586912,
       "steer": 0,
       "position": [
@@ -113,8 +128,13 @@
       "region": "枫色河谷",
       "t": 0.44500000000000006,
       "cruise": false,
-      "draws": 487,
-      "triangles": 1654688
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 3
+      },
+      "draws": 515,
+      "triangles": 2058158
     },
     {
       "screen": "drive",
@@ -125,9 +145,9 @@
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398042554166232,
-      "coolant": 80.28809671792465,
-      "odometer": 54.732333224261254,
+      "fuel": 0.9398041887499563,
+      "coolant": 80.29013810034876,
+      "odometer": 54.9299152572167,
       "heading": -1.926517705955881,
       "steer": 0,
       "position": [
@@ -138,8 +158,13 @@
       "region": "松影镜湖",
       "t": 0.6160000000000001,
       "cruise": false,
-      "draws": 554,
-      "triangles": 1402595
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 4
+      },
+      "draws": 595,
+      "triangles": 2169875
     },
     {
       "screen": "drive",
@@ -150,9 +175,9 @@
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9397966387499351,
-      "coolant": 80.51569471117551,
-      "odometer": 54.732333224261254,
+      "fuel": 0.9397965720832683,
+      "coolant": 80.51763748916838,
+      "odometer": 54.9299152572167,
       "heading": -2.8080813784670884,
       "steer": 0,
       "position": [
@@ -163,8 +188,13 @@
       "region": "云上垭口",
       "t": 0.746,
       "cruise": false,
-      "draws": 558,
-      "triangles": 1691751
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 4
+      },
+      "draws": 599,
+      "triangles": 2459031
     }
   ],
   "screenshots": [
