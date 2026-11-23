@@ -84,10 +84,11 @@ export function indexAtDistance(points, distance) {
 
 // Signed distance travelled along the plan, in metres. Negative means the car is
 // behind the plan start (it drove backwards); values beyond path.length mean it
-// has passed the destination.
-export function pathProgress(network, path, station) {
-  const delta = (((station - path.fromT + 0.5) % 1) + 1) % 1 - 0.5;
-  return delta * network.length;
+// has passed the destination. With no prior observation, choose the lap closest
+// to the planned arc; live navigation unwraps around its previous progress.
+export function pathProgress(network, path, station, previousProgress = path.length / 2) {
+  const forward = wrap(station - path.fromT) * network.length;
+  return forward + Math.round((previousProgress - forward) / network.length) * network.length;
 }
 
 // Offset a road-centre point towards the right-hand lane. Driver-right is -X at

@@ -117,3 +117,36 @@ test('a navigation plan is reused while driving and rebuilt only when it is inva
   const reversed = navigation.update({ t: 0.09 });
   assert.notEqual(reversed.path, first.path, 'driving behind the plan start rebuilds it');
 });
+
+test('long routes keep their shared plan and accumulated progress beyond half a circuit', () => {
+  const network = readRoadNetwork(createRoute().road);
+  for (const start of [0.1, 0.85]) {
+    const navigation = createNavigation({ network });
+    navigation.setDestination({ t: (start + 0.8) % 1 });
+    const first = navigation.update({ t: start });
+    const direct = pathProgress(network, first.path, (start + 0.6) % 1);
+    assert.ok(Math.abs(direct - 0.6 * network.length) < 1e-6, 'a path query supports the full forward arc');
+    for (let step = 1; step <= 33; step++) {
+      const travelled = step * 0.025 * network.length;
+      const frame = navigation.update({ t: (start + step * 0.025) % 1 });
+      assert.ok(frame.path === first.path, 'forward travel reuses the map/driver path');
+      assert.ok(Math.abs(frame.progress - Math.min(travelled, first.path.length)) < 1e-6);
+      assert.ok(Math.abs(frame.remaining - Math.max(0, first.path.length - travelled)) < 1e-6);
+      assert.equal(frame.passed, travelled > first.path.length + 1);
+    }
+  }
+});
+
+test('reversing near the start of an almost-full circuit is not mistaken for arrival', () => {
+  const network = readRoadNetwork(createRoute().road);
+  const navigation = createNavigation({ network });
+  navigation.setDestination({ t: 0.095 });
+  const first = navigation.update({ t: 0.1 });
+  const smallReverse = navigation.update({ t: 0.099 });
+  assert.equal(smallReverse.progress, 0);
+  assert.ok(smallReverse.path === first.path);
+  const reversed = navigation.update({ t: 0.09 });
+  assert.ok(reversed.path !== first.path);
+  assert.equal(reversed.progress, 0);
+  assert.equal(reversed.passed, false);
+});

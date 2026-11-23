@@ -180,7 +180,8 @@ function boot() {
       ui.toast(`已设终点：${region.name} · 按 B 让自动驾驶带你过去`, 3400);
     },
     autopilot() {
-      if (!started || screen !== 'drive' || photo) return;
+      if (!started || !['drive', 'map'].includes(screen) || photo) return;
+      if (screen === 'map') actions.resume();
       if (autopilot.engaged) { autopilot.disengage(); ui.toast('自动驾驶已关闭'); return; }
       if (!navigation.destination) {
         const region = nextRegionAhead();

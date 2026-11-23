@@ -77,9 +77,6 @@ export function normalizeAIConfig(input = {}) {
 export function loadAIConfig(env = globalThis) {
   const sources = [];
   try {
-    if (isObject(env.__HORIZON_AI__)) sources.push(env.__HORIZON_AI__);
-  } catch { /* ignore a hostile global */ }
-  try {
     const raw = env.localStorage && typeof env.localStorage.getItem === 'function'
       ? env.localStorage.getItem(AI_STORAGE_KEY)
       : null;
@@ -88,6 +85,9 @@ export function loadAIConfig(env = globalThis) {
       if (isObject(parsed)) sources.push(parsed);
     }
   } catch { /* malformed local config must never break boot */ }
+  try {
+    if (isObject(env.__HORIZON_AI__)) sources.push(env.__HORIZON_AI__);
+  } catch { /* ignore a hostile global */ }
   return normalizeAIConfig(Object.assign({}, ...sources));
 }
 
@@ -130,12 +130,13 @@ export function validateCommand(value) {
   const picked = {};
   for (const [name, aliases] of Object.entries(ALIASES)) {
     for (const alias of aliases) {
-      if (source[alias] == null) continue;
-      const numeric = Number(source[alias]);
-      if (Number.isFinite(numeric)) {
-        picked[name] = numeric;
-        found = true;
-      }
+      if (!Object.hasOwn(source, alias)) continue;
+      const value = source[alias];
+      if (typeof value !== 'number' && (typeof value !== 'string' || !value.trim())) return null;
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) return null;
+      picked[name] = numeric;
+      found = true;
       break;
     }
   }
@@ -174,19 +175,20 @@ export function parseDrivingCommand(text) {
   const cleaned = text.replace(/```[a-zA-Z]*/g, '').trim();
   const candidates = [cleaned, balancedObject(cleaned)].filter(Boolean);
   for (const candidate of candidates) {
+    let parsed;
     try {
-      const command = validateCommand(JSON.parse(candidate));
-      if (command) return command;
-    } catch { /* try the next candidate */ }
+      parsed = JSON.parse(candidate);
+    } catch { continue; }
+    return validateCommand(parsed);
   }
   // Last resort: key/value pairs embedded in prose.
   const picked = {};
   let found = false;
   for (const [name, aliases] of Object.entries(ALIASES)) {
     for (const alias of aliases) {
-      const match = cleaned.match(new RegExp(`(?:^|[^A-Za-z_])["']?${alias}["']?\\s*[:=]\\s*(-?\\d+(?:\\.\\d+)?)`, 'i'));
+      const match = cleaned.match(new RegExp(`(?:^|[^A-Za-z_])["']?${alias}["']?\\s*[:=]\\s*([^\\s,;}]+)`, 'i'));
       if (match) {
-        picked[name] = Number(match[1]);
+        picked[name] = match[1].replace(/^["']|["']$/g, '');
         found = true;
         break;
       }
@@ -259,8 +261,6 @@ export function createLLMDriver({ config = DEFAULT_AI_CONFIG, fetchImpl = global
   let settings = normalizeAIConfig(config);
   let latest = null;
   let inFlight = null;
-  let controller = null;
-  let cancelled = false;
   let nextAllowedAt = 0;
   let failures = 0;
   const stats = { requests: 0, successes: 0, failures: 0, lastError: null, lastLatencyMs: null };
@@ -281,9 +281,26 @@ export function createLLMDriver({ config = DEFAULT_AI_CONFIG, fetchImpl = global
   }
 
   function latestCommand() {
-    if (!latest) return null;
+    if (!settings.enabled || !latest) return null;
     if (now() - latest.at > settings.commandTtlMs) return null;
     return latest.command;
+  }
+
+  function finishRequest(request) {
+    clearTimeout(request.timer);
+    if (inFlight !== request) return;
+    stats.lastLatencyMs = Math.max(0, Math.round(now() - request.started));
+    inFlight = null;
+  }
+
+  function failRequest(request, message) {
+    if (inFlight !== request) return;
+    latest = null;
+    stats.failures++;
+    stats.lastError = message;
+    failures = Math.min(failures + 1, 5);
+    nextAllowedAt = now() + Math.min(15000, settings.minIntervalMs * Math.max(2, 2 ** failures));
+    finishRequest(request);
   }
 
   function maybeRequest(observation) {
@@ -295,18 +312,25 @@ export function createLLMDriver({ config = DEFAULT_AI_CONFIG, fetchImpl = global
     const headers = { 'Content-Type': 'application/json', ...settings.headers };
     if (settings.apiKey) headers.Authorization = `Bearer ${settings.apiKey}`;
     const body = protocol === 'ollama'
-      ? { model: settings.model, stream: false, messages: buildMessages(observation) }
+      ? { model: settings.model, stream: false, options: { temperature: settings.temperature, num_predict: settings.maxTokens }, messages: buildMessages(observation) }
       : { model: settings.model, stream: false, temperature: settings.temperature, max_tokens: settings.maxTokens, messages: buildMessages(observation) };
-    const started = now();
-    cancelled = false;
-    controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), settings.timeoutMs);
+    const request = { started: at, controller: new AbortController(), timer: null };
+    inFlight = request;
+    request.timer = setTimeout(() => {
+      request.controller.abort();
+      failRequest(request, 'timeout');
+    }, settings.timeoutMs);
     stats.requests++;
-    const request = Promise.resolve()
-      .then(() => fetchImpl(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal }))
+    Promise.resolve()
+      .then(() => {
+        if (inFlight !== request) return null;
+        return fetchImpl(url, { method: 'POST', headers, body: JSON.stringify(body), signal: request.controller.signal });
+      })
       .then(async (response) => {
+        if (inFlight !== request) return;
         if (!response || response.ok === false) throw new Error(`HTTP ${response && response.status ? response.status : 'error'}`);
         const payload = await response.json();
+        if (inFlight !== request) return;
         const content = protocol === 'ollama'
           ? payload && payload.message && payload.message.content
           : payload && payload.choices && payload.choices[0]
@@ -314,43 +338,34 @@ export function createLLMDriver({ config = DEFAULT_AI_CONFIG, fetchImpl = global
             : null;
         const command = parseDrivingCommand(content);
         if (!command) throw new Error('invalid driving command');
-        latest = { command, at: now() };
+        if (now() - request.started > settings.commandTtlMs) throw new Error('stale observation');
+        latest = { command, at: request.started };
         stats.successes++;
         stats.lastError = null;
         failures = 0;
       })
       .catch((error) => {
-        if (cancelled) {
-          stats.lastError = 'cancelled';
-          return;
-        }
         const message = error && error.name === 'AbortError' ? 'timeout' : String((error && error.message) || error);
-        stats.failures++;
-        stats.lastError = message;
-        failures = Math.min(failures + 1, 5);
-        nextAllowedAt = now() + Math.min(15000, settings.minIntervalMs * Math.max(2, 2 ** failures));
+        failRequest(request, message);
       })
-      .finally(() => {
-        clearTimeout(timer);
-        stats.lastLatencyMs = Math.max(0, Math.round(now() - started));
-        inFlight = null;
-        controller = null;
-      });
-    inFlight = request;
+      .finally(() => finishRequest(request));
     return true;
   }
 
   function cancel() {
-    if (!controller) return;
-    cancelled = true;
-    controller.abort();
+    latest = null;
+    if (!inFlight) return;
+    const request = inFlight;
+    finishRequest(request);
+    request.controller.abort();
   }
 
   function configure(next) {
+    cancel();
     settings = normalizeAIConfig({ ...settings, ...(next || {}) });
-    latest = null;
     failures = 0;
     nextAllowedAt = 0;
+    stats.lastError = null;
   }
 
   return {

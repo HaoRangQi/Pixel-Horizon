@@ -6,4 +6,5 @@
 - [踩坑：Node 断言打印 Three.js 场景图导致内存暴涨](../../.agents/notes/implemented/testing/2026-11-22-node-assert-scene-graph-memory.md)
 - [已实施：导航路径查询与可插拔 AI 驾驶员](../../.agents/notes/implemented/architecture/2026-11-23-navigation-and-ai-driver.md)
 - [导航与 AI 自动驾驶使用说明](../ai-autopilot.md)
+- [导航交付边界修复计划](plans/2026-11-23-navigation-handoff-fixes.md)
 - [启动与操作](../../README.md)

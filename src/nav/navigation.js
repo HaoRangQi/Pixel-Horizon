@@ -12,6 +12,7 @@ export function createNavigation({ network, spacing = 6, replanBehind = 30 } = {
   if (!network || typeof network.sample !== 'function') throw new TypeError('createNavigation: network is required');
   let destination = null;
   let path = null;
+  let travelled = 0;
 
   function setDestination(goal) {
     if (goal == null) throw new TypeError('setDestination: goal is required');
@@ -25,11 +26,13 @@ export function createNavigation({ network, spacing = 6, replanBehind = 30 } = {
       z: sample.position.z,
     };
     path = null;
+    travelled = 0;
   }
 
   function clear() {
     destination = null;
     path = null;
+    travelled = 0;
   }
 
   function update(state) {
@@ -37,9 +40,10 @@ export function createNavigation({ network, spacing = 6, replanBehind = 30 } = {
       return { active: false, destination: null, path: null, progress: 0, remaining: 0, passed: false, startIndex: 0 };
     }
     if (!path) path = planPath(network, { t: state.t }, { t: destination.t }, { spacing });
-    const travelled = pathProgress(network, path, state.t);
+    travelled = pathProgress(network, path, state.t, travelled);
     if (travelled < -replanBehind) {
       path = planPath(network, { t: state.t }, { t: destination.t }, { spacing });
+      travelled = 0;
       return { active: true, destination, path, progress: 0, remaining: path.length, passed: false, startIndex: 0 };
     }
     const progress = clamp(travelled, 0, path.length);

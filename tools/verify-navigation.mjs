@@ -89,10 +89,11 @@ try {
   await page.locator('#map-button').click();
   await page.waitForTimeout(400);
   await shot('navigation-map');
-  await page.locator('#close-map').click();
   check('the large map shows the same highlighted route');
 
-  await page.keyboard.press('b');
+  await page.locator('#autopilot-button').click();
+  assert.equal(await page.evaluate(() => window.__horizon.screen), 'drive', 'the map autopilot button resumes driving');
+  assert.equal(await page.evaluate(() => window.__horizon.autopilot.engaged), true, 'the map button engages autopilot');
   await page.waitForFunction(() => window.__horizon.autopilot.engaged === true);
   await page.waitForTimeout(4000);
   const driving = await page.evaluate(() => {
@@ -112,6 +113,12 @@ try {
   assert.ok(driving.lateral < 1, `the car stays right of the centreline (${driving.lateral.toFixed(2)}m)`);
   assert.equal(driving.offroad, false);
   check('the local planner autonomously drives the highlighted route in the right lane');
+
+  await page.keyboard.press('b');
+  assert.equal(await page.evaluate(() => window.__horizon.autopilot.engaged), false);
+  await page.keyboard.press('b');
+  assert.equal(await page.evaluate(() => window.__horizon.autopilot.engaged), true);
+  check('the map button and B hotkey both control autopilot');
 
   await page.keyboard.down('w'); await page.waitForTimeout(200); await page.keyboard.up('w');
   await page.waitForFunction(() => window.__horizon.autopilot.engaged === false);
@@ -139,6 +146,9 @@ try {
   assert.ok(arrived.speed < 1.5, `the car parks (${arrived.speed.toFixed(2)}m/s)`);
   assert.equal(arrived.active, false, 'arrival clears the destination');
   assert.ok(arrived.toast.includes('已抵达终点'), `arrival toast reads ${arrived.toast}`);
+  await page.waitForFunction(() => document.querySelector('#nav-state').hidden
+    && !document.querySelector('#autopilot-state').classList.contains('active')
+    && document.querySelector('#speed').textContent === '000');
   await shot('navigation-arrival');
   check('the local planner stops at the destination marker and hands control back');
 
@@ -171,7 +181,10 @@ try {
     return game.navigation.frame().remaining;
   });
   await llmPage.waitForFunction(() => window.__horizon.autopilot.source === 'llm', null, { timeout: 15000 });
-  await llmPage.waitForTimeout(1500);
+  await llmPage.waitForFunction((start) => {
+    const game = window.__horizon;
+    return game.state.speed > 2 && game.navigation.frame().remaining < start - 10;
+  }, start, { timeout: 15000 });
   const remote = await llmPage.evaluate(() => ({
     status: window.__horizon.autopilot.status(),
     speed: window.__horizon.state.speed,
@@ -187,7 +200,7 @@ try {
   const observed = JSON.parse(llmRequests[0].messages[1].content);
   assert.ok(Array.isArray(observed.path) && observed.path.length > 0);
   assert.ok(Number.isFinite(observed.speedKmh) && Number.isFinite(observed.remainingM));
-  results.llm = { endpoint: `127.0.0.1:${port}`, model: 'mock-driver', requests: llmRequests.length, observed };
+  results.llm = { ...results.llm, endpoint: `127.0.0.1:${port}`, model: 'mock-driver', requests: llmRequests.length, observed };
   await llmPage.screenshot({ path: 'shots/rework/navigation-llm.png' });
   results.screenshots.push('shots/rework/navigation-llm.png');
   check('a configured OpenAI-compatible endpoint drives the car through the pluggable driver interface');

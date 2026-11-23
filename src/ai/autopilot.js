@@ -1,10 +1,10 @@
 // Autonomous driver orchestrator. It owns the pluggable driver contract and the
 // LLM safety envelope:
-//   - the deterministic local planner is always computed and always safe;
+//   - the deterministic local planner is always computed and available;
 //   - a fresh, valid LLM command may replace it;
 //   - stale, failed or malformed LLM output silently falls back to local;
-//   - the arrival guard always uses the local planner, so a model cannot drive
-//     past the destination marker.
+//   - the arrival guard always uses local braking, so a model cannot override
+//     the final brake command (stopping distance still depends on speed).
 //
 // `update()` is the only place that starts network requests; `command()` stays
 // synchronous so the 120 Hz physics loop never waits on the network.

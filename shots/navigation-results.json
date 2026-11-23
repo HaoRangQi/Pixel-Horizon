@@ -1,10 +1,11 @@
 {
-  "baseURL": "http://127.0.0.1:5176/",
+  "baseURL": "http://127.0.0.1:5198/",
   "checks": [
     "boots with no destination and the LLM backend disabled",
     "map goal button sets a destination, draws its marker and highlights the route on the minimap",
     "the large map shows the same highlighted route",
     "the local planner autonomously drives the highlighted route in the right lane",
+    "the map button and B hotkey both control autopilot",
     "manual input takes over while the destination stays active",
     "the map clear button removes the destination and the highlight",
     "the local planner stops at the destination marker and hands control back",
@@ -18,9 +19,10 @@
     "shots/rework/navigation-llm.png"
   ],
   "llm": {
-    "endpoint": "127.0.0.1:64544",
+    "defaultRequests": 0,
+    "endpoint": "127.0.0.1:52545",
     "model": "mock-driver",
-    "requests": 7,
+    "requests": 6,
     "observed": {
       "speedKmh": 0,
       "remainingM": 500,
@@ -65,8 +67,8 @@
         }
       ]
     },
-    "failures": 3,
-    "fallbackSpeedKmh": 61
+    "failures": 1,
+    "fallbackSpeedKmh": 56
   },
   "errors": [],
   "status": "passed"

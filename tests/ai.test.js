@@ -10,8 +10,13 @@ import {
   validateCommand, buildLLMObservation, createLLMDriver,
 } from '../src/ai/llm-driver.js';
 import { createAutopilot } from '../src/ai/autopilot.js';
+import { createNavigation } from '../src/nav/navigation.js';
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+const llmResponse = (content = '{"throttle":0.42,"brake":0,"steer":0.07}') => ({
+  ok: true, json: async () => ({ choices: [{ message: { content } }] }),
+});
+const mockConfig = { enabled: true, endpoint: 'http://example.test/v1/chat/completions', model: 'mock', minIntervalMs: 200 };
 
 test('the AI driver is disabled by default and needs an explicit http endpoint and model', () => {
   const config = normalizeAIConfig();
@@ -39,6 +44,16 @@ test('endpoint resolution supports OpenAI-compatible and Ollama-native shapes', 
   assert.deepEqual(resolveEndpoint('http://127.0.0.1:11434/api/chat'), { url: 'http://127.0.0.1:11434/api/chat', protocol: 'ollama' });
 });
 
+test('page configuration overrides stored settings, including an explicit disable', () => {
+  const config = loadAIConfig({
+    __HORIZON_AI__: { enabled: false, model: 'page-model' },
+    localStorage: { getItem: () => JSON.stringify({ ...mockConfig, model: 'stored-model' }) },
+  });
+  assert.equal(config.enabled, false);
+  assert.equal(config.model, 'page-model');
+  assert.equal(config.endpoint, mockConfig.endpoint);
+});
+
 test('LLM command parsing tolerates fences, prose, aliases and numeric strings, and clamps unsafe input', () => {
   assert.deepEqual(
     parseDrivingCommand('```json\n{"throttle":"0.5","brake":0,"steer":"-0.25"}\n```'),
@@ -56,6 +71,19 @@ test('LLM command parsing tolerates fences, prose, aliases and numeric strings, 
   assert.equal(parseDrivingCommand('I would rather not drive.'), null);
   assert.equal(parseDrivingCommand(null), null);
   assert.equal(validateCommand({ throttle: NaN }), null);
+});
+
+test('invalid control values invalidate the entire LLM command instead of becoming acceleration', () => {
+  for (const throttle of [true, false, '', ' ', null, [], {}, NaN, Infinity]) {
+    assert.equal(validateCommand({ throttle, brake: 0, steer: 0 }), null);
+  }
+  for (const content of [
+    '{"throttle":true,"brake":"bad","steer":0}',
+    '{"throttle":1e999,"brake":0,"steer":0}',
+    '{"throttle":0.5,"brake":NaN,"steer":0}',
+    'throttle: 0.5, brake: invalid, steer: 0',
+  ]) assert.equal(parseDrivingCommand(content), null, content);
+  assert.deepEqual(parseDrivingCommand('throttle: 4e-1, brake: 0, steer: -1e-1'), { throttle: 0.4, brake: 0, steer: -0.1 });
 });
 
 test('the local planner drives the shared path to the destination and holds the right lane', () => {
@@ -88,6 +116,26 @@ test('the local planner drives the shared path to the destination and holds the 
   assert.ok(maxDeviation < route.road.width * 0.5, `stayed on the tarmac (${maxDeviation.toFixed(2)}m)`);
   assert.ok(maxLeft < 0.2, `never crossed the centreline (max ${maxLeft.toFixed(2)}m left)`);
   assert.ok(Math.abs(state.speed) < 0.6);
+});
+
+test('the local planner follows a long highlighted route across the loop seam to arrival', () => {
+  const { road } = createRoute();
+  const network = readRoadNetwork(road);
+  const state = createDriver(road, 0.85);
+  const navigation = createNavigation({ network });
+  navigation.setDestination({ t: 0.65 });
+  const first = navigation.update(state);
+  let arrived = false, maxDeviation = 0;
+  for (let step = 0; step < 120 * 600 && !arrived; step++) {
+    const frame = navigation.update(state);
+    assert.ok(frame.path === first.path, 'the driven path stays identical to the highlighted query');
+    const command = planLocalDriving({ ...state, ...frame, roadWidth: road.width });
+    stepDriver(state, command, 1 / 120, road);
+    maxDeviation = Math.max(maxDeviation, state.roadDistance);
+    arrived = frame.remaining < 12 && Math.abs(state.speed) < 0.6;
+  }
+  assert.equal(arrived, true);
+  assert.ok(maxDeviation < road.width / 2, `stayed on the road over ${(first.path.length / 1000).toFixed(2)}km: ${maxDeviation.toFixed(2)}m`);
 });
 
 test('the LLM observation is car-relative, compact and free of identifiers', () => {
@@ -147,6 +195,7 @@ test('Ollama-native endpoints are sent and parsed with the Ollama protocol', asy
   assert.equal(calls[0].url, 'http://127.0.0.1:11434/api/chat');
   assert.equal(calls[0].body.stream, false);
   assert.equal(calls[0].body.max_tokens, undefined);
+  assert.deepEqual(calls[0].body.options, { temperature: 0.1, num_predict: 120 });
   assert.deepEqual(driver.latestCommand(), { throttle: 0, brake: 0.5, steer: 0 });
 });
 
@@ -164,6 +213,86 @@ test('a hung LLM request times out instead of blocking the car', async () => {
   assert.equal(status.lastError, 'timeout');
   assert.equal(status.failures, 1);
   assert.equal(driver.latestCommand(), null);
+});
+
+test('LLM freshness starts with the observation, so slow replies cannot revive expired commands', async () => {
+  let clock = 0;
+  const replies = [];
+  const driver = createLLMDriver({
+    config: { ...mockConfig, commandTtlMs: 1000 }, now: () => clock,
+    fetchImpl: () => new Promise((resolve) => replies.push(resolve)),
+  });
+  driver.maybeRequest({});
+  await flush();
+  clock = 700;
+  replies[0](llmResponse());
+  await flush();
+  assert.equal(driver.latestCommand()?.throttle, 0.42);
+  clock = 1001;
+  assert.equal(driver.latestCommand(), null, 'network latency is included in the command age');
+  driver.maybeRequest({});
+  await flush();
+  clock = 2102;
+  replies[1](llmResponse());
+  await flush();
+  assert.equal(driver.latestCommand(), null, 'a reply already stale on arrival is never published');
+});
+
+test('a failed request immediately discards a previously fresh LLM command', async () => {
+  let clock = 0, fail = false;
+  const driver = createLLMDriver({
+    config: mockConfig, now: () => clock,
+    fetchImpl: async () => fail ? llmResponse('invalid') : llmResponse(),
+  });
+  driver.maybeRequest({});
+  await flush();
+  assert.ok(driver.latestCommand());
+  clock = 250; fail = true;
+  driver.maybeRequest({});
+  await flush();
+  assert.equal(driver.status().failures, 1);
+  assert.equal(driver.latestCommand(), null, 'failure falls back without waiting for the previous TTL');
+});
+
+test('cancel clears cached commands and ignores late replies without disturbing a new request', async () => {
+  let clock = 0;
+  const replies = [], signals = [];
+  const driver = createLLMDriver({
+    config: mockConfig, now: () => clock,
+    fetchImpl: (_url, init) => new Promise((resolve) => { signals.push(init.signal); replies.push(resolve); }),
+  });
+  driver.maybeRequest({});
+  await flush();
+  driver.cancel();
+  assert.equal(signals[0].aborted, true);
+  clock = 250;
+  assert.equal(driver.maybeRequest({}), true, 'cancellation releases the in-flight slot');
+  await flush();
+  replies[0](llmResponse());
+  await flush();
+  assert.equal(driver.latestCommand(), null);
+  assert.equal(driver.status().inFlight, true, 'an old completion cannot clear the new request');
+  replies[1](llmResponse());
+  await flush();
+  assert.ok(driver.latestCommand());
+  driver.cancel();
+  assert.equal(driver.latestCommand(), null, 'manual takeover also clears a completed command');
+});
+
+test('reconfiguration invalidates the old request and disabled drivers cannot publish it', async () => {
+  let respond;
+  const driver = createLLMDriver({
+    config: mockConfig,
+    fetchImpl: () => new Promise((resolve) => { respond = resolve; }),
+  });
+  driver.maybeRequest({});
+  await flush();
+  driver.configure({ enabled: false });
+  respond(llmResponse());
+  await flush();
+  assert.equal(driver.latestCommand(), null);
+  assert.equal(driver.status().latestFresh, false);
+  assert.equal(driver.status().successes, 0);
 });
 
 test('the autopilot uses a fresh LLM command and falls back when it is absent, invalid or stale', async () => {
