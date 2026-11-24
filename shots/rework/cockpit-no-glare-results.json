@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "source": "windshield direct-light specular highlight",
+  "checks": [
+    {
+      "style": "one",
+      "mood": "day",
+      "view": 2,
+      "glassVisible": false,
+      "mirror": true,
+      "cluster": "HORIZON ONE"
+    },
+    {
+      "style": "one",
+      "mood": "sunset",
+      "view": 2,
+      "glassVisible": false,
+      "mirror": true,
+      "cluster": "HORIZON ONE"
+    },
+    {
+      "style": "coupe",
+      "mood": "day",
+      "view": 2,
+      "glassVisible": false,
+      "mirror": true,
+      "cluster": "HORIZON M4"
+    },
+    {
+      "style": "coupe",
+      "mood": "sunset",
+      "view": 2,
+      "glassVisible": false,
+      "mirror": true,
+      "cluster": "HORIZON M4"
+    }
+  ],
+  "offline": {
+    "glassVisible": false,
+    "speed": 55,
+    "externalRequests": []
+  },
+  "errors": [],
+  "screenshots": [
+    "shots/rework/cockpit-no-glare.png",
+    "shots/rework/cockpit-no-glare-offline.png"
+  ]
+}

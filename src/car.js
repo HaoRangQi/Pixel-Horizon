@@ -170,6 +170,8 @@ export function createCar({ color = null, style = 'one', garage = true } = {}) {
     const inside = mode === 'cockpit';
     cabinInside = inside;
     applyCabinLights();
+    // Even nearly transparent clearcoat casts bright sun glints across the road view.
+    materials.glass.visible = !inside;
     materials.glass.transparent = inside;
     materials.glass.opacity = inside ? 0.035 : 1;
     materials.glass.depthWrite = !inside;

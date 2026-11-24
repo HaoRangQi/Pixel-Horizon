@@ -78,3 +78,20 @@ test('the garage swaps body styles without touching the shared driving state', (
   car.setStyle('one');
   assert.equal(car.root.userData.style, 'one');
 });
+
+test('cockpit glazing does not render glare and returns in exterior views', () => {
+  const car = createCar();
+  car.setView('cockpit');
+  for (const style of ['one', 'coupe']) {
+    car.setStyle(style);
+    const glass = car.root.getObjectByName(`car-${style}-glass`).material;
+    assert.equal(glass.visible, false, `${style} cockpit has no reflective glazing`);
+    for (const view of ['chase', 'hood', 'high']) {
+      car.setView(view);
+      assert.equal(glass.visible, true, `${style} glazing returns in ${view}`);
+      assert.equal(glass.transparent, false, 'exterior glazing stays opaque');
+      car.setView('cockpit');
+      assert.equal(glass.visible, false);
+    }
+  }
+});
