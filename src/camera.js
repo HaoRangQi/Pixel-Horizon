@@ -85,7 +85,10 @@ export function createCameraRig(camera, car, road) {
   }
 
   function composeFollow(state, speed, dt, snap) {
-    const sample = road.sample(((state.t + (12 + speed * 0.22) / road.length) % 1 + 1) % 1);
+    const route = state.route || 0;
+    const length = road.lengthOf ? road.lengthOf(route) : road.length;
+    const ahead = state.t + (12 + speed * 0.22) / length;
+    const sample = road.sampleOn ? road.sampleOn(route, ahead) : road.sample(((ahead % 1) + 1) % 1);
     const desiredHeading = state.heading + angleDelta(sample.heading, state.heading) * 0.1;
     heading = snap ? desiredHeading : heading + angleDelta(desiredHeading, heading) * ease(5.5, dt);
     forward.set(Math.sin(heading), 0, Math.cos(heading));

@@ -2,12 +2,12 @@ const $ = (id) => document.getElementById(id);
 const english = ['BAY VILLAGE', 'COASTAL HIGHWAY', 'GOLDEN FIELDS', 'AUTUMN VALLEY', 'FOREST LAKE', 'MOUNTAIN PASS'];
 const notes = ['往前开，去看看海。', '海风正好，慢一点也很好。', '沿着金色的田野，一直向前。', '听，风穿过树林的声音。', '拐进湖边，停下来坐一会儿。', '翻过山口，海湾就在远方。'];
 
-export function createUI(regions, road, actions) {
+export function createUI(regions, road, actions, mapPaths) {
   const app = $('app');
   let currentRegion = -1;
   let toastTimer;
   let announceTimer;
-  const samples = Array.from({ length: 400 }, (_, i) => road.sample(i / 400).position);
+  const samples = mapPaths.flatMap((path) => path.points);
   const bounds = samples.reduce((b, p) => ({ minX: Math.min(b.minX, p.x), maxX: Math.max(b.maxX, p.x), minZ: Math.min(b.minZ, p.z), maxZ: Math.max(b.maxZ, p.z) }), { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity });
   const buttons = {
     'start-button': 'start', 'camera-button': 'camera', 'cruise-button': 'cruise',
@@ -37,11 +37,22 @@ export function createUI(regions, road, actions) {
       for (let x = 40; x < width; x += 60) { ctx.beginPath(); ctx.moveTo(x, 25); ctx.lineTo(x, height - 25); ctx.stroke(); }
       for (let y = 40; y < height; y += 60) { ctx.beginPath(); ctx.moveTo(25, y); ctx.lineTo(width - 25, y); ctx.stroke(); }
     }
-    const path = () => {
-      ctx.beginPath(); samples.forEach((p, i) => { const xy = project(p.x, p.z); if (i) ctx.lineTo(...xy); else ctx.moveTo(...xy); }); ctx.closePath();
+    const trace = (path) => {
+      ctx.beginPath(); path.points.forEach((p, i) => { const xy = project(p.x, p.z); if (i) ctx.lineTo(...xy); else ctx.moveTo(...xy); });
+      if (path.closed) ctx.closePath();
     };
-    path(); ctx.strokeStyle = '#061a2580'; ctx.lineWidth = large ? 18 : 12; ctx.lineJoin = 'round'; ctx.stroke();
-    path(); ctx.strokeStyle = large ? '#90ae9e80' : '#edf3d9a0'; ctx.lineWidth = large ? 5 : 4; ctx.stroke();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    for (const path of mapPaths) {
+      trace(path); ctx.strokeStyle = '#061a2580'; ctx.lineWidth = path.kind === 'main' ? (large ? 18 : 12) : (large ? 9 : 5); ctx.stroke();
+    }
+    for (const path of mapPaths) {
+      trace(path);
+      ctx.strokeStyle = path.kind === 'trail' ? '#c6b88c' : path.kind === 'main' ? '#b3cbb2' : '#a9c4ae';
+      ctx.lineWidth = path.kind === 'main' ? (large ? 5 : 4) : (large ? 3.6 : 2.2);
+      ctx.setLineDash(path.kind === 'trail' ? (large ? [7, 4] : [3, 2]) : []);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
     for (let i = 0; i < 6; i++) {
       const start = regions[i].t;
       const end = i === 5 ? regions[0].t + 1 : regions[i + 1].t;

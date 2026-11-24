@@ -1,0 +1,254 @@
+{
+  "baseURL": "file:///Users/macos/orca/workspaces/Pixel_Horizon/ph-routes/Pixel-Horizon.html",
+  "maps": [
+    {
+      "canvas": "large-map",
+      "paths": [
+        {
+          "id": 1,
+          "name": "北岭林道",
+          "visible": 21,
+          "samples": 21
+        },
+        {
+          "id": 2,
+          "name": "东谷捷径",
+          "visible": 73,
+          "samples": 73
+        },
+        {
+          "id": 3,
+          "name": "北门支线",
+          "visible": 6,
+          "samples": 6
+        },
+        {
+          "id": 4,
+          "name": "中央横断线",
+          "visible": 33,
+          "samples": 33
+        },
+        {
+          "id": 5,
+          "name": "南鞍林道",
+          "visible": 19,
+          "samples": 19
+        },
+        {
+          "id": 6,
+          "name": "西岭盘山线",
+          "visible": 68,
+          "samples": 68
+        },
+        {
+          "id": 7,
+          "name": "西坳连接线",
+          "visible": 15,
+          "samples": 15
+        },
+        {
+          "id": 8,
+          "name": "东西横贯线",
+          "visible": 33,
+          "samples": 33
+        },
+        {
+          "id": 9,
+          "name": "中央纵贯线",
+          "visible": 76,
+          "samples": 76
+        },
+        {
+          "id": 10,
+          "name": "湖谷联络线",
+          "visible": 40,
+          "samples": 40
+        }
+      ]
+    },
+    {
+      "canvas": "minimap",
+      "paths": [
+        {
+          "id": 1,
+          "name": "北岭林道",
+          "visible": 21,
+          "samples": 21
+        },
+        {
+          "id": 2,
+          "name": "东谷捷径",
+          "visible": 73,
+          "samples": 73
+        },
+        {
+          "id": 3,
+          "name": "北门支线",
+          "visible": 6,
+          "samples": 6
+        },
+        {
+          "id": 4,
+          "name": "中央横断线",
+          "visible": 33,
+          "samples": 33
+        },
+        {
+          "id": 5,
+          "name": "南鞍林道",
+          "visible": 19,
+          "samples": 19
+        },
+        {
+          "id": 6,
+          "name": "西岭盘山线",
+          "visible": 68,
+          "samples": 68
+        },
+        {
+          "id": 7,
+          "name": "西坳连接线",
+          "visible": 15,
+          "samples": 15
+        },
+        {
+          "id": 8,
+          "name": "东西横贯线",
+          "visible": 33,
+          "samples": 33
+        },
+        {
+          "id": 9,
+          "name": "中央纵贯线",
+          "visible": 76,
+          "samples": 76
+        },
+        {
+          "id": 10,
+          "name": "湖谷联络线",
+          "visible": 40,
+          "samples": 40
+        }
+      ]
+    }
+  ],
+  "driving": [
+    {
+      "screen": "drive",
+      "mood": "day",
+      "view": 0,
+      "viewName": "追尾视角",
+      "fps": 60,
+      "speed": 68,
+      "rpm": 8751,
+      "gear": 2,
+      "fuel": 0.9398550151567043,
+      "coolant": 78.88525467159116,
+      "odometer": 89.69392913418295,
+      "heading": 1.6223844866611743,
+      "steer": 0.04228173339163155,
+      "position": [
+        -50.70860805528621,
+        224.82650423848537,
+        -141.42724451189073
+      ],
+      "region": "云上垭口",
+      "route": 8,
+      "routeName": "东西横贯线",
+      "t": 0.46041365894342895,
+      "cruise": true,
+      "draws": 397,
+      "triangles": 1218533
+    },
+    {
+      "screen": "drive",
+      "mood": "day",
+      "view": 0,
+      "viewName": "追尾视角",
+      "fps": 60,
+      "speed": 67,
+      "rpm": 8535,
+      "gear": 2,
+      "fuel": 0.9396983707449237,
+      "coolant": 79.7777389135036,
+      "odometer": 198.097272369885,
+      "heading": 2.525943551250108,
+      "steer": 0.03761208617046595,
+      "position": [
+        -206.31852692193013,
+        180.2834356909655,
+        759.0639762850126
+      ],
+      "region": "松影镜湖",
+      "route": 10,
+      "routeName": "湖谷联络线",
+      "t": 0.27016842314147627,
+      "cruise": true,
+      "draws": 314,
+      "triangles": 1302475
+    }
+  ],
+  "network": {
+    "length": 18004.251255966927,
+    "roads": [
+      {
+        "id": 0,
+        "name": "山海环线",
+        "length": 7458.563016101705
+      },
+      {
+        "id": 1,
+        "name": "北岭林道",
+        "length": 661.0828266640491
+      },
+      {
+        "id": 2,
+        "name": "东谷捷径",
+        "length": 1876.1321039492416
+      },
+      {
+        "id": 3,
+        "name": "北门支线",
+        "length": 264.17862365310134
+      },
+      {
+        "id": 4,
+        "name": "中央横断线",
+        "length": 892.0974226066504
+      },
+      {
+        "id": 5,
+        "name": "南鞍林道",
+        "length": 569.166159651726
+      },
+      {
+        "id": 6,
+        "name": "西岭盘山线",
+        "length": 1781.2029937326165
+      },
+      {
+        "id": 7,
+        "name": "西坳连接线",
+        "length": 603.8017695018993
+      },
+      {
+        "id": 8,
+        "name": "东西横贯线",
+        "length": 892.953830744776
+      },
+      {
+        "id": 9,
+        "name": "中央纵贯线",
+        "length": 1941.50502872252
+      },
+      {
+        "id": 10,
+        "name": "湖谷联络线",
+        "length": 1063.567480638643
+      }
+    ]
+  },
+  "fps": 60.00600060006003,
+  "status": "passed",
+  "errors": []
+}

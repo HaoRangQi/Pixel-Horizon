@@ -87,7 +87,7 @@ function boot() {
     cruise() {
       if (!started || screen !== 'drive' || photo) return;
       state.cruise = !state.cruise;
-      if (state.cruise && state.roadDistance > road.width) resetDriver(state, road, state.t), state.cruise = true;
+      if (state.cruise && state.roadDistance > road.widthOf(state.route || 0)) resetDriver(state, road, state.t, state.route || 0), state.cruise = true;
       ui.toast(state.cruise ? '观光巡航已开启 · 转向或刹车可随时接管' : '已回到自由驾驶');
     },
     mood() { mood = mood === 'day' ? 'sunset' : 'day'; renderer.toneMappingExposure = world.setMood(mood).exposure; vehicle.setMood(mood); ui.mood(mood); },
@@ -112,7 +112,7 @@ function boot() {
     },
     close() { actions.resume(); },
     reset() {
-      resetDriver(state, road, state.t); rig.reset(); actions.resume(); ui.toast('已回到公路，继续出发');
+      resetDriver(state, road, state.t, state.route || 0); rig.reset(); actions.resume(); ui.toast('已回到公路，继续出发');
     },
     garage() {
       if (!started || screen !== 'drive' || photo) return;
@@ -131,7 +131,7 @@ function boot() {
     travel(index) {
       stopRace();
       ui.transition(() => {
-        resetDriver(state, road, regions[index].t); rig.reset(); actions.resume(); ui.announce(regions[index].name);
+        resetDriver(state, road, regions[index].t, 0); rig.reset(); actions.resume(); ui.announce(regions[index].name);
       });
     },
     race() {
@@ -144,14 +144,14 @@ function boot() {
           });
         }
         const start = Math.max(0.015, regions[1].t - 0.018);
-        resetDriver(state, road, start); rig.reset();
+        resetDriver(state, road, start, 0); rig.reset();
         race = { start, length: 0.105, elapsed: -3, progress: 0, position: 1, opponents: [0, 1, 2].map((i) => ({ progress: -(i + 1) * 5 / road.length, speed: 0, target: 26 + i * 2, offset: (i % 2 ? 1 : -1) * 3.3 })) };
         raceCars.forEach((car) => { car.root.visible = true; });
         actions.resume(); ui.toast('3 · 准备出发', 950);
       });
     },
   };
-  const ui = createUI(regions, road, actions);
+  const ui = createUI(regions, road, actions, world.mapPaths);
   ui.sound(audio.muted);
 
   function stopRace() {
@@ -271,13 +271,15 @@ function boot() {
         accumulator -= 1 / 120;
       }
       if (state.roadDistance > 90 || state.y < -4) {
-        resetDriver(state, road, state.t); rig.reset(); ui.toast('已经帮你回到公路');
+        resetDriver(state, road, state.t, state.route || 0); rig.reset(); ui.toast('已经帮你回到公路');
       }
     } else accumulator = 0;
     // Pure-pursuit cruise only needs a few degrees of lock on these long bends, which reads as a
     // frozen wheel from the driver's seat. Feed the visual wheel a curvature term so the hands move.
-    const bendNear = road.sample(wrap(state.t + 6 / road.length));
-    const bendFar = road.sample(wrap(state.t + 48 / road.length));
+    const bendRoute = state.route || 0;
+    const bendLength = road.lengthOf(bendRoute);
+    const bendNear = road.sampleOn(bendRoute, state.t + 6 / bendLength);
+    const bendFar = road.sampleOn(bendRoute, state.t + 48 / bendLength);
     const bend = -angleDelta(bendFar.heading, bendNear.heading);
     // A 42 m look-ahead lets the hands turn in before the bend, like a real driver's eyes do.
     const wheelTarget = running ? (state.cruise ? clamp(bend * 2.4 + state.steer, -0.9, 0.9) : state.steer) : 0;
@@ -291,7 +293,7 @@ function boot() {
     world.update(dt, time);
     world.followFocus?.(state);
     dust.update(dt, state, running);
-    const region = world.getRegion(state.t);
+    const region = world.getRegion(state.mainT ?? state.t);
     audio.update(state, regions.indexOf(region), !running);
     hudTime += dt;
     if (hudTime > 0.09) { hudTime = 0; ui.update(state, { region, view: rig.name, viewMode: rig.mode, race: race && { ...race, elapsed: Math.max(0, race.elapsed) } }); }
@@ -306,7 +308,8 @@ function boot() {
     travel(index) { actions.travel(index); },
     snapshot() { return { screen, mood, view: rig.mode, viewName: rig.name, fps: Math.round(fps), speed: Math.round(state.speed * 3.6),
       rpm: Math.round(state.rpm), gear: state.gear, fuel: state.fuel, coolant: state.coolant, odometer: state.odometer,
-      heading: state.heading, steer: state.steer, position: [state.x, state.y, state.z], region: world.getRegion(state.t).name,
+      heading: state.heading, steer: state.steer, position: [state.x, state.y, state.z], region: world.getRegion(state.mainT ?? state.t).name,
+      route: state.route || 0, routeName: road.nameOf ? road.nameOf(state.route || 0) : '山海环线',
       t: state.t, cruise: state.cruise, draws: renderer.info.render.calls, triangles: renderer.info.render.triangles }; },
   };
   window.__horizon = game;

@@ -91,6 +91,9 @@ export function createWorld(scene) {
   setMood('day');
   return {
     road:route.road,regions,followFocus,
+    // Both map canvases consume these same road centre lines.
+    mapPaths:route.mapPaths,mainJunctions:route.mainJunctions,
+    get networkLength(){return route.lines.reduce((sum,line)=>sum+line.length,0);},
     getRegion(t) {
       t=((t%1)+1)%1;
       if(t<.09||t>=.95)return regions[0];

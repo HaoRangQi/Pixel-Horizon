@@ -5,7 +5,7 @@
     "mood": "day",
     "view": 0,
     "viewName": "追尾视角",
-    "fps": 47,
+    "fps": 49,
     "speed": 53,
     "rpm": 8583,
     "gear": 1,
@@ -20,10 +20,12 @@
       -881.2964906164741
     ],
     "region": "晴湾小镇",
+    "route": 0,
+    "routeName": "山海环线",
     "t": 0.0053420937472932195,
     "cruise": false,
-    "draws": 717,
-    "triangles": 1483593
+    "draws": 723,
+    "triangles": 1542389
   },
   "errors": [],
   "externalRequests": []

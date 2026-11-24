@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "snapshot": {
+    "screen": "drive",
+    "mood": "day",
+    "view": 0,
+    "viewName": "追尾视角",
+    "fps": 60,
+    "speed": 54,
+    "rpm": 8682,
+    "gear": 1,
+    "fuel": 0.9399387175909164,
+    "coolant": 78.32915506985623,
+    "odometer": 10.371736452995005,
+    "heading": 2.135982485492562,
+    "steer": 0,
+    "position": [
+      -596.0253741591242,
+      20.160266443825183,
+      -881.4287946876975
+    ],
+    "region": "晴湾小镇",
+    "route": 0,
+    "routeName": "山海环线",
+    "t": 0.005375059448520458,
+    "cruise": false,
+    "draws": 719,
+    "triangles": 1564651
+  },
+  "errors": [],
+  "externalRequests": []
+}
