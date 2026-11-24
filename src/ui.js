@@ -7,6 +7,7 @@ export function createUI(regions, road, actions, mapPaths) {
   let currentRegion = -1;
   let toastTimer;
   let announceTimer;
+  let navView = null;
   const samples = mapPaths.flatMap((path) => path.points);
   const bounds = samples.reduce((b, p) => ({ minX: Math.min(b.minX, p.x), maxX: Math.max(b.maxX, p.x), minZ: Math.min(b.minZ, p.z), maxZ: Math.max(b.maxZ, p.z) }), { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity });
   const buttons = {
@@ -15,15 +16,53 @@ export function createUI(regions, road, actions, mapPaths) {
     'pause-button': 'pause', 'open-map': 'map', 'map-button': 'map',
     'close-map': 'close', 'resume-button': 'resume', 'reset-button': 'reset',
     'hide-button': 'hide', 'exit-photo': 'photo', 'race-button': 'race',
-    'garage-button': 'garage',
+    'garage-button': 'garage', 'clear-goal': 'clearGoal', 'autopilot-button': 'autopilot',
   };
   for (const [id, action] of Object.entries(buttons)) $(id).addEventListener('click', () => actions[action]());
   $('rev-track').innerHTML = '<i></i>'.repeat(22);
-  $('destination-list').innerHTML = regions.map((region, i) => `<button class="destination" data-destination="${i}" style="--region-color:${region.color || '#e6ff78'}"><span class="destination-index">0${i + 1}</span><span class="destination-swatch"></span><span class="destination-copy"><strong>${region.name}</strong><small>${region.subtitle || english[i]}</small></span><span class="destination-arrow">↗</span></button>`).join('');
+  $('destination-list').innerHTML = regions.map((region, i) => `<div class="destination-row"><button class="destination" data-destination="${i}" style="--region-color:${region.color || '#e6ff78'}"><span class="destination-index">0${i + 1}</span><span class="destination-swatch"></span><span class="destination-copy"><strong>${region.name}</strong><small>${region.subtitle || english[i]}</small></span><span class="destination-arrow">↗</span></button><button class="destination-goal" data-goal="${i}" title="把 ${region.name} 设为导航终点" aria-label="导航到 ${region.name}">◎</button></div>`).join('');
   $('destination-list').addEventListener('click', (event) => {
+    const goal = event.target.closest('[data-goal]');
+    if (goal) { actions.goal(Number(goal.dataset.goal)); return; }
     const button = event.target.closest('[data-destination]');
     if (button) actions.travel(Number(button.dataset.destination));
   });
+
+  function drawNavigation(ctx, project, large, nav) {
+    const points = nav.points || [];
+    const start = Math.max(0, Math.min(points.length - 1, nav.startIndex || 0));
+    if (points.length > 1 && nav.remaining > 1) {
+      const trace = () => {
+        ctx.beginPath();
+        for (let i = start; i < points.length; i++) {
+          const [x, y] = project(points[i].x, points[i].z);
+          if (i === start) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+      };
+      ctx.save();
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      trace(); ctx.strokeStyle = '#e6ff7833'; ctx.lineWidth = large ? 16 : 10; ctx.stroke();
+      trace(); ctx.strokeStyle = '#e6ff78'; ctx.lineWidth = large ? 5 : 3.5;
+      ctx.shadowColor = '#e6ff78'; ctx.shadowBlur = large ? 18 : 10; ctx.stroke();
+      ctx.restore();
+    }
+    const destination = nav.destination;
+    if (!destination) return;
+    const [x, y] = project(destination.x, destination.z);
+    const r = large ? 10 : 7;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x, y, r + (large ? 8 : 5), 0, Math.PI * 2);
+    ctx.strokeStyle = '#e6ff7855'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#142b2b'; ctx.fill(); ctx.strokeStyle = '#e6ff78'; ctx.lineWidth = large ? 3 : 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, large ? 3.5 : 2.5, 0, Math.PI * 2); ctx.fillStyle = '#e6ff78'; ctx.fill();
+    const flagTop = y - r - (large ? 15 : 10);
+    ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x, flagTop);
+    ctx.strokeStyle = '#e6ff78'; ctx.lineWidth = large ? 2 : 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, flagTop); ctx.lineTo(x + (large ? 13 : 9), flagTop + (large ? 5 : 3.5)); ctx.lineTo(x, flagTop + (large ? 10 : 7)); ctx.closePath();
+    ctx.fillStyle = '#e6ff78'; ctx.fill();
+    ctx.restore();
+  }
 
   function drawMap(canvas, state, large = false) {
     const ctx = canvas.getContext('2d');
@@ -65,6 +104,7 @@ export function createUI(regions, road, actions, mapPaths) {
       ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2); ctx.fillStyle = '#1d3939'; ctx.fill(); ctx.strokeStyle = region.color || '#e6ff78'; ctx.lineWidth = 1.5; ctx.stroke();
       ctx.fillStyle = '#f4f6dc'; ctx.font = '500 13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${i + 1}`, x, y);
     });
+    if (navView && navView.active) drawNavigation(ctx, project, large, navView);
     const [x, y] = project(state.x, state.z);
     ctx.save(); ctx.translate(x, y); ctx.rotate(-state.heading);
     ctx.beginPath(); ctx.moveTo(0, 11); ctx.lineTo(-7, -8); ctx.lineTo(0, -4); ctx.lineTo(7, -8); ctx.closePath();
@@ -74,7 +114,7 @@ export function createUI(regions, road, actions, mapPaths) {
   return {
     ready() { $('loading').classList.add('done'); setTimeout(() => { $('loading').hidden = true; }, 650); },
     start() { app.classList.remove('is-intro'); app.classList.add('is-playing'); $('world').focus({ preventScroll: true }); },
-    update(state, { region, view, viewMode = 0, race }) {
+    update(state, { region, view, viewMode = 0, race, navigation, autopilot }) {
       app.classList.toggle('is-cockpit', viewMode === 2);
       const speed = Math.abs(Math.round(state.speed * 3.6));
       $('speed').textContent = String(speed).padStart(3, '0');
@@ -85,6 +125,17 @@ export function createUI(regions, road, actions, mapPaths) {
       Array.from($('rev-track').children).forEach((bar, i) => bar.classList.toggle('active', i < revs));
       $('cruise-state').classList.toggle('active', state.cruise);
       $('cruise-button').setAttribute('aria-pressed', String(state.cruise));
+      $('autopilot-state').classList.toggle('active', !!autopilot?.engaged);
+      $('autopilot-button').setAttribute('aria-pressed', String(!!autopilot?.engaged));
+      if (autopilot?.engaged) $('autopilot-label').textContent = autopilot.source === 'llm' ? '自动驾驶 · LLM' : autopilot.source === 'fallback' ? '自动驾驶 · 回退本地' : '自动驾驶 · 本地规划';
+      navView = navigation && navigation.active ? navigation : null;
+      if (navView) {
+        $('nav-state').hidden = false;
+        $('nav-state').textContent = navView.passed
+          ? `已抵达 · ${navView.destination.label}`
+          : `导航 · ${navView.destination.label} · ${(navView.remaining / 1000).toFixed(1)} km`;
+      } else $('nav-state').hidden = true;
+      $('clear-goal').hidden = !navView;
       const index = Math.max(0, regions.indexOf(region));
       if (index !== currentRegion) {
         if (currentRegion !== -1 && app.classList.contains('is-playing')) this.announce(region.name);

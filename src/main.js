@@ -13,6 +13,10 @@ import { readDrivingInput } from './input.js';
 import { createUI } from './ui.js';
 import { DriveAudio } from './audio.js';
 import { createOutdoorEnvironment } from './environment.js';
+import { readRoadNetwork } from './nav/road-adapter.js';
+import { createNavigation } from './nav/navigation.js';
+import { createAutopilot } from './ai/autopilot.js';
+import { loadAIConfig } from './ai/llm-driver.js';
 import './style.css';
 
 const canvas = document.getElementById('world');
@@ -41,6 +45,9 @@ function boot() {
   scene.add(vehicle.root);
   const state = createDriver(road, 0.004);
   const traffic = createTraffic(scene, road);
+  const network = readRoadNetwork(road);
+  const navigation = createNavigation({ network });
+  const autopilot = createAutopilot({ config: loadAIConfig() });
   const rig = createCameraRig(camera, vehicle, road);
   const audio = new DriveAudio();
   const keys = new Set();
@@ -77,7 +84,36 @@ function boot() {
   let fpsFrames = 0;
   let fps = 60;
   let drag = null;
+  let navFrame = navigation.update(state);
+  let controlFrame = null;
   const dust = makeDust(scene);
+
+  function nextRegionAhead(minimum = 120) {
+    const station = state.mainT ?? state.t;
+    const ahead = regions
+      .map((region) => ({ region, distance: wrap(region.t - station) * road.length }))
+      .filter((entry) => entry.distance > minimum)
+      .sort((a, b) => a.distance - b.distance);
+    return (ahead[0] || { region: regions[0] }).region;
+  }
+
+  function setDestination(t, label) {
+    navigation.setDestination({ t, label });
+    if (autopilot.engaged) autopilot.disengage();
+    navFrame = navigation.update(state);
+    const distance = wrap(t - (state.mainT ?? state.t)) * road.length;
+    ui.toast(distance < 120
+      ? `导航终点：${label} · 就在前方`
+      : `导航终点：${label} · ${(distance / 1000).toFixed(1)} km`);
+  }
+
+  function clearDestination() {
+    const label = navigation.destination?.label;
+    navigation.clear();
+    autopilot.disengage();
+    navFrame = navigation.update(state);
+    if (label) ui.toast(`已清除终点：${label}`);
+  }
 
   const actions = {
     start() {
@@ -89,6 +125,7 @@ function boot() {
     camera() { if (!started || screen !== 'drive' || photo) return; rig.cycle(); resize(); ui.toast(rig.name); },
     cruise() {
       if (!started || screen !== 'drive' || photo) return;
+      if (autopilot.engaged) autopilot.disengage();
       state.cruise = !state.cruise;
       if (state.cruise && state.roadDistance > road.widthOf(state.route || 0)) resetDriver(state, road, state.t, state.route || 0), state.cruise = true;
       ui.toast(state.cruise ? '观光巡航已开启 · 转向或刹车可随时接管' : '已回到自由驾驶');
@@ -116,6 +153,9 @@ function boot() {
     close() { actions.resume(); },
     reset() {
       resetDriver(state, road, state.t, state.route || 0);
+      autopilot.disengage();
+      navigation.clear();
+      navFrame = navigation.update(state);
       traffic.avoidPlayer(state);
       rig.reset(); actions.resume(); ui.toast('已回到公路，继续出发');
     },
@@ -138,8 +178,38 @@ function boot() {
     hide() { if (!started || screen !== 'drive') return; hidden = !hidden; ui.hide(hidden); },
     signalLeft() { if (screen === 'drive') { state.turnSignal = state.turnSignal === -1 ? 0 : -1; state.signalArmed = false; } },
     signalRight() { if (screen === 'drive') { state.turnSignal = state.turnSignal === 1 ? 0 : 1; state.signalArmed = false; } },
+    goal(index) {
+      if (!started || !regions[index]) return;
+      const ahead = wrap(regions[index].t - (state.mainT ?? state.t)) * road.length;
+      if (Math.min(ahead, road.length - ahead) < 80) { ui.toast(`已经在${regions[index].name}了`); return; }
+      setDestination(regions[index].t, regions[index].name);
+      actions.resume();
+    },
+    clearGoal() { if (started) clearDestination(); },
+    navigate() {
+      if (!started || screen !== 'drive' || photo) return;
+      if (navigation.destination) { clearDestination(); return; }
+      const region = nextRegionAhead();
+      setDestination(region.t, region.name);
+      ui.toast(`已设终点：${region.name} · 按 B 让自动驾驶带你过去`, 3400);
+    },
+    autopilot() {
+      if (!started || !['drive', 'map'].includes(screen) || photo) return;
+      if (screen === 'map') actions.resume();
+      if (autopilot.engaged) { autopilot.disengage(); ui.toast('自动驾驶已关闭'); return; }
+      if (!navigation.destination) {
+        const region = nextRegionAhead();
+        navigation.setDestination({ t: region.t, label: region.name });
+      }
+      state.cruise = false;
+      autopilot.engage();
+      ui.toast(autopilot.status().llm.configured
+        ? '自动驾驶已启用 · LLM 指挥，异常时自动回退本地规划'
+        : '自动驾驶已启用 · 本地规划器沿高亮路线行驶', 3600);
+    },
     travel(index) {
       stopRace();
+      navigation.clear(); autopilot.disengage();
       ui.transition(() => {
         resetDriver(state, road, regions[index].t, 0);
         traffic.avoidPlayer(state);
@@ -151,6 +221,7 @@ function boot() {
       // restore whatever the player had chosen when it ends.
       raceTraffic = traffic.enabled;
       traffic.setEnabled(false);
+      navigation.clear(); autopilot.disengage();
       ui.transition(() => {
         if (!raceCars.length) {
           raceCars = [0xeff2c1, 0x63b9c1, 0xe7a84e].map((color, i) => {
@@ -178,6 +249,12 @@ function boot() {
 
   function controls() {
     const input = readDrivingInput(keys, touches, reverseHeld);
+    if (autopilot.engaged) {
+      if (input.manual) {
+        autopilot.disengage();
+        ui.toast('已接管驾驶 · 导航路线仍在');
+      } else if (controlFrame) return autopilot.command(controlFrame);
+    }
     if (state.cruise && !input.manual) return followRoad(state, road);
     if (state.cruise && input.throttle && !input.brake && !input.steer) { const follow = followRoad(state, road, 32); return { ...follow, throttle: 1 }; }
     return input;
@@ -243,7 +320,7 @@ function boot() {
   traffic.place(state);
   rig.update(1, state, { showcase: true, time: 0 });
 
-  const hotkeys = { KeyC: 'camera', KeyF: 'cruise', KeyT: 'mood', KeyM: 'map', KeyP: 'photo', KeyH: 'hide', KeyR: 'reset', KeyQ: 'signalLeft', KeyE: 'signalRight', KeyG: 'garage', KeyV: 'traffic' };
+  const hotkeys = { KeyC: 'camera', KeyF: 'cruise', KeyT: 'mood', KeyM: 'map', KeyP: 'photo', KeyH: 'hide', KeyR: 'reset', KeyQ: 'signalLeft', KeyE: 'signalRight', KeyG: 'garage', KeyV: 'traffic', KeyN: 'navigate', KeyB: 'autopilot' };
   addEventListener('keydown', (event) => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) event.preventDefault();
     if (!started) { if (event.code === 'Enter' || event.code === 'Space') actions.start(); return; }
@@ -279,8 +356,16 @@ function boot() {
     const wallDelta = Math.max(0, (now - lastFrame) / 1000);
     const dt = clamp(wallDelta, 0, 0.06); lastFrame = now;
     time += dt;
+    navFrame = navigation.update(state);
     const running = screen === 'drive';
     if (running) {
+      if (autopilot.engaged && !navFrame.active) autopilot.disengage();
+      controlFrame = {
+        x: state.x, z: state.z, heading: state.heading, speed: state.speed, t: state.mainT ?? state.t,
+        roadWidth: road.width, laneOffset: road.width * 0.25,
+        path: navFrame.path, progress: navFrame.progress, remaining: navFrame.remaining, destination: navFrame.destination,
+      };
+      if (autopilot.engaged) autopilot.update(controlFrame);
       accumulator += dt;
       while (accumulator >= 1 / 120) {
         const input = race && race.elapsed < 0 ? {} : controls();
@@ -288,7 +373,14 @@ function boot() {
         updateRace(1 / 120);
         accumulator -= 1 / 120;
       }
+      if (autopilot.engaged && navFrame.active && (navFrame.remaining < 12 || navFrame.passed) && Math.abs(state.speed) < 1.5) {
+        const label = navFrame.destination.label;
+        autopilot.disengage(); navigation.clear(); state.speed = 0;
+        navFrame = navigation.update(state);
+        ui.toast(`已抵达终点：${label}`); ui.announce(label);
+      }
       if (state.roadDistance > 90 || state.y < -4) {
+        autopilot.disengage();
         resetDriver(state, road, state.t, state.route || 0); rig.reset(); ui.toast('已经帮你回到公路');
       }
     } else accumulator = 0;
@@ -312,11 +404,21 @@ function boot() {
     world.followFocus?.(state);
     dust.update(dt, state, running);
     // Traffic keeps flowing in photo/map mode; only a paused game freezes it.
-    traffic.update(screen === 'pause' ? 0 : dt, state);
+    traffic.update(screen === 'pause' ? 0 : dt, { ...state, t: state.mainT ?? state.t });
     const region = world.getRegion(state.mainT ?? state.t);
     audio.update(state, regions.indexOf(region), !running);
     hudTime += dt;
-    if (hudTime > 0.09) { hudTime = 0; ui.update(state, { region, view: rig.name, viewMode: rig.mode, race: race && { ...race, elapsed: Math.max(0, race.elapsed) } }); }
+    if (hudTime > 0.09) {
+      hudTime = 0;
+      ui.update(state, {
+        region, view: rig.name, viewMode: rig.mode,
+        race: race && { ...race, elapsed: Math.max(0, race.elapsed) },
+        navigation: navFrame.active
+          ? { active: true, destination: navFrame.destination, points: navFrame.path.points, startIndex: navFrame.startIndex, remaining: navFrame.remaining, passed: navFrame.passed }
+          : { active: false },
+        autopilot: { engaged: autopilot.engaged, source: autopilot.source },
+      });
+    }
     renderer.info.reset(); composer.render();
     fpsFrames++; fpsTime += wallDelta;
     if (fpsTime > 1) { fps = fpsFrames / fpsTime; fpsTime = 0; fpsFrames = 0; }
@@ -331,7 +433,24 @@ function boot() {
       heading: state.heading, steer: state.steer, position: [state.x, state.y, state.z], region: world.getRegion(state.mainT ?? state.t).name,
       route: state.route || 0, routeName: road.nameOf ? road.nameOf(state.route || 0) : '山海环线',
       t: state.t, cruise: state.cruise, traffic: traffic.summary(),
-      draws: renderer.info.render.calls, triangles: renderer.info.render.triangles }; },
+      draws: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      navigation: { active: !!navigation.destination, label: navigation.destination?.label ?? null, t: navigation.destination?.t ?? null,
+        points: navFrame.path?.points.length ?? 0, remaining: Math.round(navFrame.remaining || 0), passed: !!navFrame.passed },
+      autopilot: { engaged: autopilot.engaged, source: autopilot.source, reason: autopilot.reason, llm: autopilot.status().llm } }; },
+    navigation: {
+      setDestination(t, label) { setDestination(t, label); },
+      clear() { clearDestination(); },
+      get active() { return !!navigation.destination; },
+      frame() { return { active: navFrame.active, label: navigation.destination?.label ?? null, remaining: Math.round(navFrame.remaining || 0), passed: !!navFrame.passed, points: navFrame.path?.points.length ?? 0 }; },
+    },
+    autopilot: {
+      engage() { actions.autopilot(); },
+      disengage() { autopilot.disengage(); },
+      configure(config) { autopilot.configure(config); return autopilot.status(); },
+      status() { return autopilot.status(); },
+      get engaged() { return autopilot.engaged; },
+      get source() { return autopilot.source; },
+    },
   };
   window.__horizon = game;
   renderer.compile(scene, camera);

@@ -1,0 +1,75 @@
+{
+  "baseURL": "http://127.0.0.1:5174/",
+  "checks": [
+    "boots with no destination and the LLM backend disabled",
+    "map goal button sets a destination, draws its marker and highlights the route on the minimap",
+    "the large map shows the same highlighted route",
+    "the local planner autonomously drives the highlighted route in the right lane",
+    "the map button and B hotkey both control autopilot",
+    "manual input takes over while the destination stays active",
+    "the map clear button removes the destination and the highlight",
+    "the local planner stops at the destination marker and hands control back",
+    "a configured OpenAI-compatible endpoint drives the car through the pluggable driver interface",
+    "an unreachable LLM falls back to the local planner without interrupting the drive"
+  ],
+  "screenshots": [
+    "shots/rework/navigation-hud.png",
+    "shots/rework/navigation-map.png",
+    "shots/rework/navigation-arrival.png",
+    "shots/rework/navigation-llm.png"
+  ],
+  "llm": {
+    "defaultRequests": 0,
+    "endpoint": "127.0.0.1:49404",
+    "model": "mock-driver",
+    "requests": 7,
+    "observed": {
+      "speedKmh": 0,
+      "remainingM": 500,
+      "roadWidthM": 12.2,
+      "rightLaneOffsetM": 3.1,
+      "path": [
+        {
+          "aheadM": 8,
+          "forwardM": 8,
+          "rightM": 3,
+          "turnDeg": 0
+        },
+        {
+          "aheadM": 18,
+          "forwardM": 18,
+          "rightM": 3,
+          "turnDeg": 0
+        },
+        {
+          "aheadM": 32,
+          "forwardM": 32,
+          "rightM": 3,
+          "turnDeg": 0
+        },
+        {
+          "aheadM": 50,
+          "forwardM": 50,
+          "rightM": 3,
+          "turnDeg": 0
+        },
+        {
+          "aheadM": 75,
+          "forwardM": 75,
+          "rightM": 3,
+          "turnDeg": 0
+        },
+        {
+          "aheadM": 110,
+          "forwardM": 109.9,
+          "rightM": 3.3,
+          "turnDeg": -1
+        }
+      ]
+    },
+    "failures": 1,
+    "fallbackSpeedKmh": 61
+  },
+  "errors": [],
+  "status": "passed"
+}
