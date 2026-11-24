@@ -16,6 +16,7 @@
     "verify:network": "node tools/verify-network.mjs",
     "verify:garage": "node tools/verify-garage.mjs",
     "verify:memory": "node tools/verify-memory.mjs",
+    "verify:traffic": "node tools/verify-traffic.mjs",
     "record:instruments": "node tools/record-instruments.mjs"
   },
   "dependencies": {

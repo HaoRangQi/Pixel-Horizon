@@ -5,6 +5,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createWorld } from './world.js';
 import { createCar } from './car.js';
+import { createTraffic } from './traffic.js';
 import { BODY_ORDER, BODY_STYLES } from './car/bodies.js';
 import { createCameraRig } from './camera.js';
 import { angleDelta, createDriver, stepDriver, resetDriver, followRoad } from './drive.js';
@@ -39,6 +40,7 @@ function boot() {
   const vehicle = createCar();
   scene.add(vehicle.root);
   const state = createDriver(road, 0.004);
+  const traffic = createTraffic(scene, road);
   const rig = createCameraRig(camera, vehicle, road);
   const audio = new DriveAudio();
   const keys = new Set();
@@ -65,6 +67,7 @@ function boot() {
   let reverseHeld = false;
   let race = null;
   let raceCars = [];
+  let raceTraffic = null;
   let lastFrame = performance.now();
   let accumulator = 0;
   let time = 0;
@@ -112,7 +115,14 @@ function boot() {
     },
     close() { actions.resume(); },
     reset() {
-      resetDriver(state, road, state.t, state.route || 0); rig.reset(); actions.resume(); ui.toast('已回到公路，继续出发');
+      resetDriver(state, road, state.t, state.route || 0);
+      traffic.avoidPlayer(state);
+      rig.reset(); actions.resume(); ui.toast('已回到公路，继续出发');
+    },
+    traffic() {
+      if (!started || screen !== 'drive' || photo) return;
+      traffic.setEnabled(!traffic.enabled);
+      ui.toast(traffic.enabled ? '车流已开启 · 按 V 关闭' : '车流已关闭 · 按 V 开启');
     },
     garage() {
       if (!started || screen !== 'drive' || photo) return;
@@ -131,10 +141,16 @@ function boot() {
     travel(index) {
       stopRace();
       ui.transition(() => {
-        resetDriver(state, road, regions[index].t, 0); rig.reset(); actions.resume(); ui.announce(regions[index].name);
+        resetDriver(state, road, regions[index].t, 0);
+        traffic.avoidPlayer(state);
+        rig.reset(); actions.resume(); ui.announce(regions[index].name);
       });
     },
     race() {
+      // The sprint opponents ignore civilian traffic, so park the fleet for the race and
+      // restore whatever the player had chosen when it ends.
+      raceTraffic = traffic.enabled;
+      traffic.setEnabled(false);
       ui.transition(() => {
         if (!raceCars.length) {
           raceCars = [0xeff2c1, 0x63b9c1, 0xe7a84e].map((color, i) => {
@@ -157,6 +173,7 @@ function boot() {
   function stopRace() {
     race = null;
     raceCars.forEach((car) => { car.root.visible = false; });
+    if (raceTraffic !== null) { traffic.setEnabled(raceTraffic); raceTraffic = null; }
   }
 
   function controls() {
@@ -223,9 +240,10 @@ function boot() {
   resize();
   world.setMood(mood);
   placeCar();
+  traffic.place(state);
   rig.update(1, state, { showcase: true, time: 0 });
 
-  const hotkeys = { KeyC: 'camera', KeyF: 'cruise', KeyT: 'mood', KeyM: 'map', KeyP: 'photo', KeyH: 'hide', KeyR: 'reset', KeyQ: 'signalLeft', KeyE: 'signalRight', KeyG: 'garage' };
+  const hotkeys = { KeyC: 'camera', KeyF: 'cruise', KeyT: 'mood', KeyM: 'map', KeyP: 'photo', KeyH: 'hide', KeyR: 'reset', KeyQ: 'signalLeft', KeyE: 'signalRight', KeyG: 'garage', KeyV: 'traffic' };
   addEventListener('keydown', (event) => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) event.preventDefault();
     if (!started) { if (event.code === 'Enter' || event.code === 'Space') actions.start(); return; }
@@ -293,6 +311,8 @@ function boot() {
     world.update(dt, time);
     world.followFocus?.(state);
     dust.update(dt, state, running);
+    // Traffic keeps flowing in photo/map mode; only a paused game freezes it.
+    traffic.update(screen === 'pause' ? 0 : dt, state);
     const region = world.getRegion(state.mainT ?? state.t);
     audio.update(state, regions.indexOf(region), !running);
     hudTime += dt;
@@ -303,14 +323,15 @@ function boot() {
   });
 
   game = {
-    state, world, vehicle, camera, rig, renderer, actions,
+    state, world, vehicle, camera, rig, renderer, actions, traffic,
     get screen() { return screen; }, get mood() { return mood; }, get fps() { return fps; }, get race() { return race; },
     travel(index) { actions.travel(index); },
     snapshot() { return { screen, mood, view: rig.mode, viewName: rig.name, fps: Math.round(fps), speed: Math.round(state.speed * 3.6),
       rpm: Math.round(state.rpm), gear: state.gear, fuel: state.fuel, coolant: state.coolant, odometer: state.odometer,
       heading: state.heading, steer: state.steer, position: [state.x, state.y, state.z], region: world.getRegion(state.mainT ?? state.t).name,
       route: state.route || 0, routeName: road.nameOf ? road.nameOf(state.route || 0) : '山海环线',
-      t: state.t, cruise: state.cruise, draws: renderer.info.render.calls, triangles: renderer.info.render.triangles }; },
+      t: state.t, cruise: state.cruise, traffic: traffic.summary(),
+      draws: renderer.info.render.calls, triangles: renderer.info.render.triangles }; },
   };
   window.__horizon = game;
   renderer.compile(scene, camera);

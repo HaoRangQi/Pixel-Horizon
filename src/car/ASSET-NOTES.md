@@ -39,6 +39,20 @@ car because the inactive mount is detached from the cabin. Both clusters share t
 `update(dt, data)` contract in `car.js`, so driving state, garage swaps and screenshots need
 no per-style branches.
 
+## Traffic shells
+
+NPC traffic (`src/traffic.js`) reuses the same `bodyGeometry(style)` instance the player drives —
+`bodyGeometry` caches each style's merged material groups, so traffic adds no second copy of the
+body geometry. Every civilian car of a style shares one `InstancedMesh` per material group; the
+paint batch is kept white and receives a per-instance colour from the traffic palette, which is
+what makes the fleet look varied without cloning materials. Wheels are a reduced rebuild
+(~1.2k triangles each): tyre torus, rim face, five spokes, hub, brake disc and a fixed caliper.
+They use the same axle/track/radius constants so ride height matches. Only silhouette materials
+cast shadows and the wheel batches never do, keeping the traffic cost at a fixed set of draw
+calls. Geometry ownership stays here: `bodies.js` owns the cache, `traffic.js` must not mutate
+the shared BufferGeometry. Rationale and measured cost:
+[民用 NPC 车流](../../.agents/notes/implemented/feature/2026-11-23-npc-traffic.md).
+
 ## Mirrors
 
 `mirrors.js` renders one 768 × 192 rear panorama (62° horizontal FOV, 30 Hz) and maps three

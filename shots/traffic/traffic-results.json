@@ -1,0 +1,522 @@
+{
+  "baseURL": "http://127.0.0.1:5175/",
+  "checks": [
+    "traffic fleet boots with 22 cars",
+    "10 s of driving: closest NPC 106.1 m, up to 5 visible, no overlap",
+    "closing at speed: no overlap across 24 samples (closest centre 6.8 m)",
+    "N switches traffic off and back on without disturbing the player",
+    "cost at a fixed camera: +41 draws, +532k triangles",
+    "count and density are configurable through the traffic API"
+  ],
+  "samples": [
+    {
+      "t": 0.004063583816975358,
+      "speed": 3.51272614041169,
+      "visible": 5,
+      "nearest": 171.73,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.004230478870902443,
+      "speed": 6.506222465398911,
+      "visible": 5,
+      "nearest": 178.28,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.00448455389604252,
+      "speed": 9.230866060086763,
+      "visible": 4,
+      "nearest": 185.05,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.004864362680424339,
+      "speed": 12.056087517804103,
+      "visible": 4,
+      "nearest": 193.14,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.0053094862049880565,
+      "speed": 14.541836035502843,
+      "visible": 4,
+      "nearest": 201.21,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.005854390220800587,
+      "speed": 16.954117198756546,
+      "visible": 4,
+      "nearest": 210,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.006480318175424937,
+      "speed": 19.216121079389133,
+      "visible": 4,
+      "nearest": 219.56,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.007158397116306503,
+      "speed": 21.26974389869685,
+      "visible": 4,
+      "nearest": 229.23,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.007903230966294306,
+      "speed": 23.19722203748828,
+      "visible": 4,
+      "nearest": 239.38,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.008766653706681948,
+      "speed": 25.121624941805017,
+      "visible": 4,
+      "nearest": 250.63,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.009666576222320478,
+      "speed": 26.86346542953765,
+      "visible": 4,
+      "nearest": 249.21,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.01062486524059314,
+      "speed": 28.49157696861144,
+      "visible": 4,
+      "nearest": 246.81,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.011604206722608534,
+      "speed": 29.96491441399483,
+      "visible": 4,
+      "nearest": 244.55,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.012666364244687811,
+      "speed": 31.387677059526517,
+      "visible": 4,
+      "nearest": 241.39,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.013812703631890022,
+      "speed": 32.75623302902558,
+      "visible": 4,
+      "nearest": 237.88,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.01489243855511635,
+      "speed": 33.91378410095471,
+      "visible": 4,
+      "nearest": 234.49,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.016125893488955878,
+      "speed": 35.105301615260764,
+      "visible": 4,
+      "nearest": 230.41,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.017359967744274396,
+      "speed": 36.17893788796725,
+      "visible": 4,
+      "nearest": 226.15,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.018629858265129196,
+      "speed": 37.17817394591793,
+      "visible": 4,
+      "nearest": 221.53,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.019933020440262128,
+      "speed": 38.10768447221798,
+      "visible": 4,
+      "nearest": 216.99,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.02122354860439768,
+      "speed": 38.945008319639285,
+      "visible": 4,
+      "nearest": 212.32,
+      "overlaps": 0,
+      "minPlayerGap": 346.1858673859285
+    },
+    {
+      "t": 0.022585278900195016,
+      "speed": 39.7500715385008,
+      "visible": 4,
+      "nearest": 207.14,
+      "overlaps": 0,
+      "minPlayerGap": 332.12973621075446
+    },
+    {
+      "t": 0.023928315002692324,
+      "speed": 40.47465859382143,
+      "visible": 4,
+      "nearest": 202.41,
+      "overlaps": 0,
+      "minPlayerGap": 317.2670990907284
+    },
+    {
+      "t": 0.025294291569265326,
+      "speed": 41.14910094658763,
+      "visible": 4,
+      "nearest": 197.24,
+      "overlaps": 0,
+      "minPlayerGap": 302.8442690346471
+    },
+    {
+      "t": 0.02677418609735671,
+      "speed": 41.81688576692565,
+      "visible": 4,
+      "nearest": 191.28,
+      "overlaps": 0,
+      "minPlayerGap": 287.899652223674
+    },
+    {
+      "t": 0.02822916597745606,
+      "speed": 42.41641427596072,
+      "visible": 4,
+      "nearest": 185.82,
+      "overlaps": 0,
+      "minPlayerGap": 272.19318117852526
+    },
+    {
+      "t": 0.029606216977338562,
+      "speed": 42.93788881765597,
+      "visible": 4,
+      "nearest": 180.64,
+      "overlaps": 0,
+      "minPlayerGap": 257.69880459679763
+    },
+    {
+      "t": 0.031047326567622546,
+      "speed": 43.43995596112898,
+      "visible": 4,
+      "nearest": 174.91,
+      "overlaps": 0,
+      "minPlayerGap": 242.80201119893675
+    },
+    {
+      "t": 0.03264800720360972,
+      "speed": 43.951318555844715,
+      "visible": 4,
+      "nearest": 168.6,
+      "overlaps": 0,
+      "minPlayerGap": 226.25616684597776
+    },
+    {
+      "t": 0.03411742120703032,
+      "speed": 44.38159449476979,
+      "visible": 4,
+      "nearest": 162.79,
+      "overlaps": 0,
+      "minPlayerGap": 1102.9674991288439
+    },
+    {
+      "t": 0.03564514389389206,
+      "speed": 44.79405206476821,
+      "visible": 4,
+      "nearest": 156.85,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.03696338768682428,
+      "speed": 35.213589502810585,
+      "visible": 4,
+      "nearest": 152.32,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.038020174951664654,
+      "speed": 28.875865818621076,
+      "visible": 4,
+      "nearest": 149.69,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.038952858776769794,
+      "speed": 24.284633218488146,
+      "visible": 4,
+      "nearest": 148.27,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.03970012758857,
+      "speed": 21.287802290289388,
+      "visible": 3,
+      "nearest": 147.91,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.04036061304064975,
+      "speed": 19.137754946710864,
+      "visible": 3,
+      "nearest": 139.75,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.04100274819196148,
+      "speed": 17.48869079722943,
+      "visible": 3,
+      "nearest": 130.87,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.04157615139606863,
+      "speed": 16.336346657991033,
+      "visible": 3,
+      "nearest": 122.2,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.042073800913184245,
+      "speed": 15.541689090602048,
+      "visible": 3,
+      "nearest": 114.35,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "t": 0.042604236778238436,
+      "speed": 14.894712919751905,
+      "visible": 3,
+      "nearest": 106.08,
+      "overlaps": 0,
+      "minPlayerGap": null
+    },
+    {
+      "phase": "ram",
+      "t": 0.06213954963625601,
+      "speed": 16.212541351843747,
+      "nearest": 31.43,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.0626399876398347,
+      "speed": 18.158557567747852,
+      "nearest": 31.43,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06317207604645869,
+      "speed": 19.93286194296657,
+      "nearest": 31.43,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06370433638775963,
+      "speed": 21.48497718701945,
+      "nearest": 31.43,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.0643535139987288,
+      "speed": 23.15094589799468,
+      "nearest": 31.43,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.0649936817262815,
+      "speed": 24.608889204073968,
+      "nearest": 30.98,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06575983002057195,
+      "speed": 26.161588667082974,
+      "nearest": 29.35,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06644771320135723,
+      "speed": 27.41442228972474,
+      "nearest": 28.55,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06719931798580969,
+      "speed": 28.65628748292894,
+      "nearest": 27.03,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06804954685520137,
+      "speed": 29.929587059859298,
+      "nearest": 25.06,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06886589277473387,
+      "speed": 31.041474107719164,
+      "nearest": 23.08,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.06971070860639261,
+      "speed": 32.095260565795826,
+      "nearest": 20.84,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07058240861836462,
+      "speed": 33.09360515304687,
+      "nearest": 18.45,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07155535193095086,
+      "speed": 34.115558876035514,
+      "nearest": 15.76,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07247827746977586,
+      "speed": 35.00655122784981,
+      "nearest": 13.24,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07342303529402239,
+      "speed": 35.849743648971824,
+      "nearest": 10.66,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07447079863138062,
+      "speed": 36.71192812022042,
+      "nearest": 8.21,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07545843973223909,
+      "speed": 37.46282936193987,
+      "nearest": 6.8,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07646327338632353,
+      "speed": 38.17275295444134,
+      "nearest": 6.8,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07761598644877976,
+      "speed": 38.92497426576956,
+      "nearest": 6.8,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07861173762733764,
+      "speed": 39.52897466470095,
+      "nearest": 6.8,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.07966625698624807,
+      "speed": 39.10017661214028,
+      "nearest": 6.8,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.08068608813176348,
+      "speed": 32.32845137862525,
+      "nearest": 6.8,
+      "overlaps": 0
+    },
+    {
+      "phase": "ram",
+      "t": 0.08151048381752002,
+      "speed": 27.678946410264867,
+      "nearest": 6.8,
+      "overlaps": 0
+    }
+  ],
+  "measurements": {
+    "withTraffic": {
+      "draws": 522,
+      "triangles": 1847269,
+      "fps": 60,
+      "visible": 3
+    },
+    "withoutTraffic": {
+      "draws": 481,
+      "triangles": 1315397,
+      "fps": 60,
+      "visible": 0
+    }
+  },
+  "screenshots": [
+    "shots/traffic/traffic-chase.png",
+    "shots/traffic/traffic-pass.png",
+    "shots/traffic/traffic-side.png"
+  ],
+  "errors": [],
+  "status": "passed"
+}

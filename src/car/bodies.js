@@ -33,3 +33,13 @@ export function sharedCabinGeometry() {
   sharedCabin ??= createCabinGeometry();
   return sharedCabin;
 }
+
+// One build per shell, shared by the player's garage, the sprint opponents and NPC traffic.
+// Sharing the BufferGeometry keeps a traffic car at the cost of its instance matrices, not
+// another copy of a 128k-triangle shell.
+const geometryCache = new Map();
+export function bodyGeometry(style) {
+  const key = BODY_STYLES[style] ? style : 'one';
+  if (!geometryCache.has(key)) geometryCache.set(key, BODY_STYLES[key].build());
+  return geometryCache.get(key);
+}
