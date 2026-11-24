@@ -7,13 +7,16 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
-const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--enable-webgl', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--enable-webgl', '--ignore-gpu-blocklist', '--js-flags=--expose-gc'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
 const errors = [];
 page.on('pageerror', (error) => errors.push(error.message));
-const baseURL = process.env.HORIZON_URL || 'http://127.0.0.1:5173/';
+const baseURL = process.env.HORIZON_URL || 'http://127.0.0.1:5174/';
 
 const sample = () => page.evaluate(() => {
+  // Traffic samples the road for every NPC each frame, so the raw heap has a lot of
+  // short-lived churn. Collect first and measure retained memory, not GC timing.
+  window.gc?.();
   const game = window.__horizon, renderer = game.renderer, root = game.vehicle.root;
   let nodes = 0;
   root.traverse(() => { nodes++; });

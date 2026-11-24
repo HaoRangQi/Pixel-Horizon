@@ -150,3 +150,14 @@ test('reversing near the start of an almost-full circuit is not mistaken for arr
   assert.equal(reversed.progress, 0);
   assert.equal(reversed.passed, false);
 });
+
+test('navigation keeps the main-loop station while the car drives a branch', () => {
+  const network = readRoadNetwork(createRoute().road);
+  const navigation = createNavigation({ network });
+  navigation.setDestination({ t: 0.3, label: '金穗原野' });
+  const onMain = navigation.update({ t: 0.1, mainT: 0.1 });
+  const onBranch = navigation.update({ t: 0.72, mainT: 0.12 });
+  assert.equal(onBranch.path, onMain.path, 'the scenic plan remains shared');
+  assert.ok(onBranch.progress > onMain.progress, 'mainT drives progress, not the branch-local t');
+  assert.ok(onBranch.remaining < onMain.remaining);
+});

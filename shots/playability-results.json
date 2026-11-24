@@ -1,5 +1,5 @@
 {
-  "baseURL": "http://127.0.0.1:5175/",
+  "baseURL": "http://127.0.0.1:5174/",
   "checks": [
     "start enters free driving",
     "real A/D key events turn the car in the conventional direction",
@@ -25,9 +25,9 @@
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398346054167083,
-      "coolant": 79.26052972054624,
-      "odometer": 54.9299152572167,
+      "fuel": 0.9398272502865714,
+      "coolant": 79.63727437420637,
+      "odometer": 89.52738533700231,
       "heading": 2.107791050402172,
       "steer": 0,
       "position": [
@@ -36,6 +36,8 @@
         -951.0002170456012
       ],
       "region": "晴湾小镇",
+      "route": 0,
+      "routeName": "山海环线",
       "t": 0.02299999999999991,
       "cruise": false,
       "traffic": {
@@ -43,21 +45,49 @@
         "count": 22,
         "visible": 4
       },
-      "draws": 718,
-      "triangles": 2189389
+      "draws": 739,
+      "triangles": 2280466,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     },
     {
       "screen": "drive",
       "mood": "day",
       "view": 0,
       "viewName": "追尾视角",
-      "fps": 60,
+      "fps": 46,
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398270220833537,
-      "coolant": 79.53657843580285,
-      "odometer": 54.9299152572167,
+      "fuel": 0.9398196336198834,
+      "coolant": 79.89630889119822,
+      "odometer": 89.52738533700231,
       "heading": 1.5516877234927426,
       "steer": 0,
       "position": [
@@ -66,6 +96,8 @@
         -1099.8887764028639
       ],
       "region": "灯塔海岸",
+      "route": 0,
+      "routeName": "山海环线",
       "t": 0.1060000000000001,
       "cruise": false,
       "traffic": {
@@ -73,21 +105,49 @@
         "count": 22,
         "visible": 4
       },
-      "draws": 493,
-      "triangles": 2068520
+      "draws": 491,
+      "triangles": 2124733,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     },
     {
       "screen": "drive",
       "mood": "day",
       "view": 0,
       "viewName": "追尾视角",
-      "fps": 60,
+      "fps": 41,
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398194387499991,
-      "coolant": 79.79935016041664,
-      "odometer": 54.9299152572167,
+      "fuel": 0.9398121169531957,
+      "coolant": 80.13967313685296,
+      "odometer": 89.52738533700231,
       "heading": 0.08197713234087747,
       "steer": 0,
       "position": [
@@ -96,6 +156,8 @@
         -144.97435510101332
       ],
       "region": "金穗原野",
+      "route": 0,
+      "routeName": "山海环线",
       "t": 0.31800000000000006,
       "cruise": false,
       "traffic": {
@@ -103,21 +165,49 @@
         "count": 22,
         "visible": 4
       },
-      "draws": 446,
-      "triangles": 2060920
+      "draws": 435,
+      "triangles": 2153205,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     },
     {
       "screen": "drive",
       "mood": "day",
       "view": 0,
       "viewName": "追尾视角",
-      "fps": 60,
+      "fps": 48,
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.939811822083311,
-      "coolant": 80.05055596754602,
-      "odometer": 54.9299152572167,
+      "fuel": 0.9398034502865047,
+      "coolant": 80.40590235881164,
+      "odometer": 89.52738533700231,
       "heading": -0.7963136037586912,
       "steer": 0,
       "position": [
@@ -126,6 +216,8 @@
         705.692948607043
       ],
       "region": "枫色河谷",
+      "route": 0,
+      "routeName": "山海环线",
       "t": 0.44500000000000006,
       "cruise": false,
       "traffic": {
@@ -133,21 +225,49 @@
         "count": 22,
         "visible": 3
       },
-      "draws": 515,
-      "triangles": 2058158
+      "draws": 546,
+      "triangles": 2299934,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     },
     {
       "screen": "drive",
       "mood": "day",
       "view": 0,
       "viewName": "追尾视角",
-      "fps": 60,
+      "fps": 59,
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9398041887499563,
-      "coolant": 80.29013810034876,
-      "odometer": 54.9299152572167,
+      "fuel": 0.9397923002864734,
+      "coolant": 80.72708032546151,
+      "odometer": 89.52738533700231,
       "heading": -1.926517705955881,
       "steer": 0,
       "position": [
@@ -156,28 +276,58 @@
         999.8722588782502
       ],
       "region": "松影镜湖",
+      "route": 0,
+      "routeName": "山海环线",
       "t": 0.6160000000000001,
       "cruise": false,
       "traffic": {
         "enabled": true,
         "count": 22,
-        "visible": 4
+        "visible": 3
       },
-      "draws": 595,
-      "triangles": 2169875
+      "draws": 603,
+      "triangles": 2132474,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     },
     {
       "screen": "drive",
       "mood": "day",
       "view": 0,
       "viewName": "追尾视角",
-      "fps": 60,
+      "fps": 51,
       "speed": 0,
       "rpm": 1350,
       "gear": "N",
-      "fuel": 0.9397965720832683,
-      "coolant": 80.51763748916838,
-      "odometer": 54.9299152572167,
+      "fuel": 0.9397839669531167,
+      "coolant": 80.95237337249716,
+      "odometer": 89.52738533700231,
       "heading": -2.8080813784670884,
       "steer": 0,
       "position": [
@@ -186,15 +336,45 @@
         457.6509746586289
       ],
       "region": "云上垭口",
+      "route": 0,
+      "routeName": "山海环线",
       "t": 0.746,
       "cruise": false,
       "traffic": {
         "enabled": true,
         "count": 22,
-        "visible": 4
+        "visible": 5
       },
-      "draws": 599,
-      "triangles": 2459031
+      "draws": 588,
+      "triangles": 2763813,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     }
   ],
   "screenshots": [

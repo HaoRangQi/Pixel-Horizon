@@ -362,12 +362,14 @@ function boot() {
     const running = screen === 'drive';
     if (running) {
       if (autopilot.engaged && !navFrame.active) autopilot.disengage();
-      controlFrame = {
-        x: state.x, z: state.z, heading: state.heading, speed: state.speed, t: state.mainT ?? state.t,
-        roadWidth: road.width, laneOffset: road.width * 0.25,
-        path: navFrame.path, progress: navFrame.progress, remaining: navFrame.remaining, destination: navFrame.destination,
-      };
-      if (autopilot.engaged) autopilot.update(controlFrame);
+      if (autopilot.engaged) {
+        controlFrame = {
+          x: state.x, z: state.z, heading: state.heading, speed: state.speed, t: state.mainT ?? state.t,
+          roadWidth: road.width, laneOffset: road.width * 0.25,
+          path: navFrame.path, progress: navFrame.progress, remaining: navFrame.remaining, destination: navFrame.destination,
+        };
+        autopilot.update(controlFrame);
+      }
       accumulator += dt;
       while (accumulator >= 1 / 120) {
         const input = race && race.elapsed < 0 ? {} : controls();
@@ -406,7 +408,7 @@ function boot() {
     world.followFocus?.(state);
     dust.update(dt, state, running);
     // Traffic keeps flowing in photo/map mode; only a paused game freezes it.
-    traffic.update(screen === 'pause' ? 0 : dt, { ...state, t: state.mainT ?? state.t });
+    traffic.update(screen === 'pause' ? 0 : dt, state);
     const region = world.getRegion(state.mainT ?? state.t);
     audio.update(state, regions.indexOf(region), !running);
     hudTime += dt;

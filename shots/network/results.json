@@ -1,5 +1,5 @@
 {
-  "baseURL": "http://127.0.0.1:5178/",
+  "baseURL": "http://127.0.0.1:5174/",
   "maps": [
     {
       "canvas": "large-map",
@@ -138,27 +138,60 @@
       "mood": "day",
       "view": 0,
       "viewName": "追尾视角",
-      "fps": 60,
+      "fps": 43,
       "speed": 68,
-      "rpm": 8750,
+      "rpm": 8754,
       "gear": 2,
-      "fuel": 0.9398552666014974,
-      "coolant": 78.88407503151556,
-      "odometer": 89.3769525044246,
-      "heading": 1.6227705665592225,
-      "steer": 0.04235927565706555,
+      "fuel": 0.9398533644259647,
+      "coolant": 78.94053042433573,
+      "odometer": 90.1695055235966,
+      "heading": 1.6218067448947826,
+      "steer": 0.04216804040756548,
       "position": [
-        -51.02513528937956,
-        224.85331598567427,
-        -141.41037166561074
+        -50.233693692601584,
+        224.78557458777075,
+        -141.45232926053933
       ],
       "region": "云上垭口",
       "route": 8,
       "routeName": "东西横贯线",
-      "t": 0.46005872321965363,
+      "t": 0.4609461910776704,
       "cruise": true,
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 0
+      },
       "draws": 397,
-      "triangles": 1218533
+      "triangles": 1218533,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     },
     {
       "screen": "drive",
@@ -167,25 +200,58 @@
       "viewName": "追尾视角",
       "fps": 60,
       "speed": 67,
-      "rpm": 8532,
+      "rpm": 8535,
       "gear": 2,
-      "fuel": 0.9396983738975022,
-      "coolant": 79.77835008826628,
-      "odometer": 198.1010661402465,
-      "heading": 2.5261173465908056,
-      "steer": 0.03758523459308182,
+      "fuel": 0.9396931219426392,
+      "coolant": 79.85153873725662,
+      "odometer": 202.86290712114868,
+      "heading": 2.525943551250108,
+      "steer": 0.03761208617046595,
       "position": [
-        -206.40778222202405,
-        180.28146317310092,
-        759.1905320224542
+        -206.31852692193013,
+        180.2834356909655,
+        759.0639762850126
       ],
       "region": "松影镜湖",
       "route": 10,
       "routeName": "湖谷联络线",
-      "t": 0.2700228596085411,
+      "t": 0.27016842314147627,
       "cruise": true,
-      "draws": 314,
-      "triangles": 1302475
+      "traffic": {
+        "enabled": true,
+        "count": 22,
+        "visible": 4
+      },
+      "draws": 355,
+      "triangles": 2069755,
+      "navigation": {
+        "active": false,
+        "label": null,
+        "t": null,
+        "points": 0,
+        "remaining": 0,
+        "passed": false
+      },
+      "autopilot": {
+        "engaged": false,
+        "source": "local",
+        "reason": "idle",
+        "llm": {
+          "configured": false,
+          "requested": false,
+          "problem": "disabled",
+          "endpoint": "",
+          "model": "",
+          "requests": 0,
+          "successes": 0,
+          "failures": 0,
+          "lastError": null,
+          "lastLatencyMs": null,
+          "inFlight": false,
+          "latestAgeMs": null,
+          "latestFresh": false
+        }
+      }
     }
   ],
   "network": {
@@ -248,7 +314,7 @@
       }
     ]
   },
-  "fps": 60.00600060005992,
+  "fps": 60,
   "status": "passed",
   "errors": []
 }

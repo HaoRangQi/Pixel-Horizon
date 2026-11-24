@@ -8,7 +8,7 @@
     "wheelTop": 747.0895173385787
   },
   "interior": {
-    "meanLuminance": 60.905594375000916,
+    "meanLuminance": 81.43520500000012,
     "lights": [
       "cockpitAmbientLight",
       "cockpitFillLight",
@@ -22,12 +22,12 @@
         "mood": "day",
         "view": 2,
         "viewName": "驾驶舱",
-        "fps": 60,
+        "fps": 58,
         "speed": 0,
         "rpm": 1350,
         "gear": "N",
-        "fuel": 0.9399902333333059,
-        "coolant": 78.43057167533597,
+        "fuel": 0.939990166666639,
+        "coolant": 78.43341781090274,
         "odometer": 0,
         "heading": 1.5516877234927426,
         "steer": 0,
@@ -37,6 +37,8 @@
           -1099.8887764028639
         ],
         "region": "灯塔海岸",
+        "route": 0,
+        "routeName": "山海环线",
         "t": 0.1060000000000001,
         "cruise": false,
         "traffic": {
@@ -44,19 +46,47 @@
           "count": 22,
           "visible": 4
         },
-        "draws": 535,
-        "triangles": 2094332
+        "draws": 542,
+        "triangles": 2166963,
+        "navigation": {
+          "active": false,
+          "label": null,
+          "t": null,
+          "points": 0,
+          "remaining": 0,
+          "passed": false
+        },
+        "autopilot": {
+          "engaged": false,
+          "source": "local",
+          "reason": "idle",
+          "llm": {
+            "configured": false,
+            "requested": false,
+            "problem": "disabled",
+            "endpoint": "",
+            "model": "",
+            "requests": 0,
+            "successes": 0,
+            "failures": 0,
+            "lastError": null,
+            "lastLatencyMs": null,
+            "inFlight": false,
+            "latestAgeMs": null,
+            "latestFresh": false
+          }
+        }
       },
       "physicalDriverX": 0.345,
       "gauges": {
         "speed": 0,
         "rpm": 1350,
         "gear": "N",
-        "fuel": 0.9399902333333059,
-        "coolant": 78.43057167533597,
+        "fuel": 0.939990166666639,
+        "coolant": 78.43341781090274,
         "odometer": 0,
         "turnSignal": 0,
-        "time": 6.02369999992847,
+        "time": 6.062299999713899,
         "brand": {
           "header": "AMG  //  PERFORMANCE",
           "sub": "HORIZON ONE",
@@ -75,44 +105,74 @@
         "speed": 112,
         "rpm": 8610,
         "gear": 4,
-        "fuel": 0.9396861458855155,
-        "coolant": 79.62304390826829,
-        "odometer": 108.51582967353937,
-        "heading": 1.4823886021900077,
-        "steer": 0.07439045023819646,
+        "fuel": 0.9396819390690088,
+        "coolant": 79.68864226184536,
+        "odometer": 109.80640835392758,
+        "heading": 1.4811600339759778,
+        "steer": 0.07533566950595548,
         "position": [
-          215.3848077112534,
-          26.47544219813322,
-          -1090.3110442097186
+          216.6704823848386,
+          26.5046320625009,
+          -1090.1986441592016
         ],
         "region": "灯塔海岸",
-        "t": 0.12052593340746487,
+        "route": 0,
+        "routeName": "山海环线",
+        "t": 0.12069997777369079,
         "cruise": true,
         "traffic": {
           "enabled": true,
           "count": 22,
           "visible": 4
         },
-        "draws": 481,
-        "triangles": 2094039
+        "draws": 500,
+        "triangles": 2190649,
+        "navigation": {
+          "active": false,
+          "label": null,
+          "t": null,
+          "points": 0,
+          "remaining": 0,
+          "passed": false
+        },
+        "autopilot": {
+          "engaged": false,
+          "source": "local",
+          "reason": "idle",
+          "llm": {
+            "configured": false,
+            "requested": false,
+            "problem": "disabled",
+            "endpoint": "",
+            "model": "",
+            "requests": 0,
+            "successes": 0,
+            "failures": 0,
+            "lastError": null,
+            "lastLatencyMs": null,
+            "inFlight": false,
+            "latestAgeMs": null,
+            "latestFresh": false
+          }
+        }
       },
       "physicalDriverX": 0.345,
       "gauges": {
-        "speed": 30.97513339519479,
-        "rpm": 8610.411144638052,
+        "speed": 30.976877991718908,
+        "rpm": 8609.914736882545,
         "gear": 4,
-        "fuel": 0.9396861458855155,
-        "coolant": 79.62304390826829,
-        "odometer": 108.51582967353937,
+        "fuel": 0.9396819390690088,
+        "coolant": 79.68864226184536,
+        "odometer": 109.80640835392758,
         "turnSignal": 0,
-        "time": 11.3072999999523,
+        "time": 12.057699999809232,
         "brand": {
           "header": "AMG  //  PERFORMANCE",
           "sub": "HORIZON ONE",
           "mode": "E-PERFORMANCE"
         }
       },
-      "needle": -5.7374950397401685
+      "needle": -5.737300100870432
     },
     {
       "state": {
@@ -120,48 +180,78 @@
         "mood": "sunset",
         "view": 2,
         "viewName": "驾驶舱",
-        "fps": 60,
-        "speed": 71,
-        "rpm": 5516,
+        "fps": 50,
+        "speed": 69,
+        "rpm": 5375,
         "gear": 4,
-        "fuel": 0.9396834649863186,
-        "coolant": 79.70458047282065,
-        "odometer": 135.22734222841532,
-        "heading": 1.444984416312235,
-        "steer": 0.04972372111142774,
+        "fuel": 0.9396753052584843,
+        "coolant": 79.81325043505477,
+        "odometer": 146.41448148461615,
+        "heading": 1.4320908283878524,
+        "steer": 0.0348166298439363,
         "position": [
-          241.9504184409181,
-          27.1073052849759,
-          -1087.5393188493301
+          253.04295573686215,
+          27.378220621936972,
+          -1086.0903184483284
         ],
         "region": "灯塔海岸",
-        "t": 0.12412907091037129,
+        "route": 0,
+        "routeName": "山海环线",
+        "t": 0.1256326003744701,
         "cruise": true,
         "traffic": {
           "enabled": true,
           "count": 22,
           "visible": 4
         },
-        "draws": 517,
-        "triangles": 2198501
+        "draws": 532,
+        "triangles": 2272666,
+        "navigation": {
+          "active": false,
+          "label": null,
+          "t": null,
+          "points": 0,
+          "remaining": 0,
+          "passed": false
+        },
+        "autopilot": {
+          "engaged": false,
+          "source": "local",
+          "reason": "idle",
+          "llm": {
+            "configured": false,
+            "requested": false,
+            "problem": "disabled",
+            "endpoint": "",
+            "model": "",
+            "requests": 0,
+            "successes": 0,
+            "failures": 0,
+            "lastError": null,
+            "lastLatencyMs": null,
+            "inFlight": false,
+            "latestAgeMs": null,
+            "latestFresh": false
+          }
+        }
       },
       "physicalDriverX": 0.345,
       "gauges": {
-        "speed": 19.726064520804787,
-        "rpm": 5515.879051549641,
+        "speed": 19.301507725719205,
+        "rpm": 5374.600252410908,
         "gear": 4,
-        "fuel": 0.9396834649863186,
-        "coolant": 79.70458047282065,
-        "odometer": 135.22734222841532,
+        "fuel": 0.9396753052584843,
+        "coolant": 79.81325043505477,
+        "odometer": 146.41448148461615,
         "turnSignal": 0,
-        "time": 12.471899999976142,
+        "time": 13.722999999999955,
         "brand": {
           "header": "AMG  //  PERFORMANCE",
           "sub": "HORIZON ONE",
           "mode": "E-PERFORMANCE"
         }
       },
-      "needle": -4.522275128497118
+      "needle": -4.46679507381184
     }
   ],
   "errors": []

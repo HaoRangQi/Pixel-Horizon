@@ -20,9 +20,9 @@
   ],
   "llm": {
     "defaultRequests": 0,
-    "endpoint": "127.0.0.1:49404",
+    "endpoint": "127.0.0.1:54265",
     "model": "mock-driver",
-    "requests": 7,
+    "requests": 6,
     "observed": {
       "speedKmh": 0,
       "remainingM": 500,
@@ -68,7 +68,7 @@
       ]
     },
     "failures": 1,
-    "fallbackSpeedKmh": 61
+    "fallbackSpeedKmh": 55
   },
   "errors": [],
   "status": "passed"

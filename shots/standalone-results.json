@@ -5,27 +5,60 @@
     "mood": "day",
     "view": 0,
     "viewName": "追尾视角",
-    "fps": 49,
+    "fps": 61,
     "speed": 53,
-    "rpm": 8583,
+    "rpm": 8664,
     "gear": 1,
-    "fuel": 0.93993983797413,
-    "coolant": 78.3251092818435,
-    "odometer": 10.124703718403687,
+    "fuel": 0.9399398046407966,
+    "coolant": 78.32655535150256,
+    "odometer": 10.369433685098482,
     "heading": 2.135982485492562,
     "steer": 0,
     "position": [
-      -596.2339905647528,
-      20.169213025389766,
-      -881.2964906164741
+      -596.0273188210832,
+      20.160271245355162,
+      -881.427561387308
     ],
     "region": "晴湾小镇",
     "route": 0,
     "routeName": "山海环线",
-    "t": 0.0053420937472932195,
+    "t": 0.005374956395490127,
     "cruise": false,
-    "draws": 723,
-    "triangles": 1542389
+    "traffic": {
+      "enabled": true,
+      "count": 22,
+      "visible": 4
+    },
+    "draws": 760,
+    "triangles": 2331931,
+    "navigation": {
+      "active": false,
+      "label": null,
+      "t": null,
+      "points": 0,
+      "remaining": 0,
+      "passed": false
+    },
+    "autopilot": {
+      "engaged": false,
+      "source": "local",
+      "reason": "idle",
+      "llm": {
+        "configured": false,
+        "requested": false,
+        "problem": "disabled",
+        "endpoint": "",
+        "model": "",
+        "requests": 0,
+        "successes": 0,
+        "failures": 0,
+        "lastError": null,
+        "lastLatencyMs": null,
+        "inFlight": false,
+        "latestAgeMs": null,
+        "latestFresh": false
+      }
+    }
   },
   "errors": [],
   "externalRequests": []

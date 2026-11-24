@@ -1,12 +1,12 @@
 // Read-only adapter between the world's road data and the navigation layer.
 // It never mutates the road objects: route generation stays owned by world/route.js.
 //
-// A source is either a single road (the current 7.46 km closed circuit) or
+// A source is either a single road (the world's 7.46 km main circuit) or
 // `{ routes: [...] }` / an array of roads. Multiple routes are treated as an
 // ordered chain: route 0 ends where route 1 starts, and the chain wraps from the
-// last route back to the first. Branching topology (junctions, one-way links)
-// belongs to the road-network workflow; this adapter only needs the ordered
-// linearisation that a path query and the map highlight can share.
+// last route back to the first. The world's ten branch roads are free-drive
+// excursions: navigation destinations stay on the main circuit, and callers pass
+// `state.mainT` so a branch-local t is not mistaken for a main-loop station.
 
 const wrap = (t) => ((t % 1) + 1) % 1;
 

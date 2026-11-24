@@ -167,7 +167,7 @@ export function createTrafficModel(road, options = {}) {
   function update(dt, player) {
     if (!enabled || !(dt > 0) || !cars.length) return;
     time += dt;
-    const playerT = wrap(player?.t ?? 0);
+    const playerT = wrap(player?.mainT ?? player?.t ?? 0);
     const playerSpeed = Math.abs(player?.speed ?? 0);
     const ps = road.sample(playerT);
     const playerLateral = player

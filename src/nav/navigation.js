@@ -11,6 +11,7 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 // excursions, so navigation follows their projection back onto that loop rather
 // than pretending a branch-local t is a station on the circuit.
 const stationOf = (state) => (Number.isFinite(state?.mainT) ? state.mainT : state?.t);
+const INACTIVE_FRAME = Object.freeze({ active: false, destination: null, path: null, progress: 0, remaining: 0, passed: false, startIndex: 0 });
 
 export function createNavigation({ network, spacing = 6, replanBehind = 30 } = {}) {
   if (!network || typeof network.sample !== 'function') throw new TypeError('createNavigation: network is required');
@@ -41,7 +42,7 @@ export function createNavigation({ network, spacing = 6, replanBehind = 30 } = {
 
   function update(state) {
     if (!destination) {
-      return { active: false, destination: null, path: null, progress: 0, remaining: 0, passed: false, startIndex: 0 };
+      return INACTIVE_FRAME;
     }
     const station = stationOf(state);
     if (!path) path = planPath(network, { t: station }, { t: destination.t }, { spacing });
