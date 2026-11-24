@@ -241,10 +241,10 @@ export function addTerrain(scene, route, landscape) {
 function addMountainLayers(scene) {
   const rng = seededRandom(71092);
   const ranges = [
-    { x: -2500, z: 2500, width: 3000, depth: 970, height: 590, yaw: -.61, color: 0x667d83 },
-    { x: 800, z: 3500, width: 3900, depth: 1150, height: 650, yaw: .19, color: 0x75899a },
-    { x: -4100, z: 800, width: 2100, depth: 850, height: 480, yaw: -1.05, color: 0x7c8a99 },
-    { x: -600, z: 5100, width: 4900, depth: 1100, height: 810, yaw: -.13, color: 0x8a98a8 },
+    { x: -2500, z: 2500, width: 3000, depth: 970, height: 590, yaw: -.61, color: 0x7b929a },
+    { x: 800, z: 3500, width: 3900, depth: 1150, height: 650, yaw: .19, color: 0x899eaf },
+    { x: -4100, z: 800, width: 2100, depth: 850, height: 480, yaw: -1.05, color: 0x90a0ae },
+    { x: -600, z: 5100, width: 4900, depth: 1100, height: 810, yaw: -.13, color: 0x9eacbc },
   ];
   for (const [rangeIndex, range] of ranges.entries()) {
     const nx = 115, nz = 18, positions = [], colors = [], indices = [], baseColor = new THREE.Color(range.color);

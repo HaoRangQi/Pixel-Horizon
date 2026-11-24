@@ -1,0 +1,39 @@
+{
+  "mood": "day",
+  "parameters": {
+    "renderer.toneMappingExposure": { "before": 0.97, "after": 1.12, "note": "boot used the renderer default; the day mood value was only applied on the first T toggle" },
+    "dayMood.exposure": { "before": 1.03, "after": 1.12 },
+    "sunsetMood.exposure": { "before": 0.98, "after": 0.98 },
+    "toneMapping": { "before": "ACESFilmicToneMapping", "after": "ACESFilmicToneMapping" },
+    "scene.environmentIntensity": { "before": 0.45, "after": 0.62 },
+    "hemisphereLight.color": { "before": "0xc8d9e4", "after": "0xd9ebf7" },
+    "hemisphereLight.groundColor": { "before": "0x70614c", "after": "0x8a7a5f" },
+    "hemisphereLight.intensity": { "before": 0.72, "after": 0.95 },
+    "directionalLight.color": { "before": "0xffebc8", "after": "0xfff1d6" },
+    "directionalLight.intensity": { "before": 2.7, "after": 3.15 },
+    "shadows": { "before": "PCFSoft 2048, bias -0.00016, normalBias 0.15, radius 2", "after": "unchanged" },
+    "sky.zenith": { "before": "0x438bc0", "after": "0x3f8fd6" },
+    "sky.horizon": { "before": "0xc9dfe0", "after": "0xd2e7f4" },
+    "sky.sunColor": { "before": "0xffe4b4", "after": "0xfff0cf" },
+    "sky.cloudColor": { "before": "0xf7f0df", "after": "0xfffbf0" },
+    "sky.sunHalo": { "before": 0.13, "after": 0.16 },
+    "sky.cloudCoverage": { "before": "smoothstep(0.53,0.72)", "after": "smoothstep(0.56,0.74)" },
+    "sky.cloudOpacity": { "before": 0.83, "after": 0.78 },
+    "fog.day": { "before": "color 0xadc6cf, near 1050, far 6100", "after": "color 0xcfe4ec, near 1500, far 7500" },
+    "fog.sunset": { "before": "color 0xb8a3a3, near 1050, far 6100", "after": "unchanged" },
+    "water.ocean": { "before": "0x246c86 / 0x72b6a4", "after": "0x2a7f9e / 0x7fc9b2" },
+    "water.lake": { "before": "0x285d69 / 0x72a89b", "after": "0x2e7180 / 0x7fbfae" },
+    "water.river": { "before": "0x427b82 / 0x91c0ad", "after": "0x4a8d95 / 0x9fd3bd" },
+    "distantMountains": { "before": ["0x667d83", "0x75899a", "0x7c8a99", "0x8a98a8"], "after": ["0x7b929a", "0x899eaf", "0x90a0ae", "0x9eacbc"] },
+    "vignette.css": { "before": "top rgba(7,26,39,.24) → 18%, bottom rgba(7,25,29,.45)", "after": "top rgba(10,32,44,.10) → 16%, bottom rgba(8,28,34,.16) at 66%" },
+    "iblEnvironment": { "before": "sky 0x79b2d5, horizon 0xd9dfcf, ground 0x5d6653, sun (-0.52,0.4,-0.71), colour x0.9", "after": "sky 0x7fbfe6, horizon 0xe3eee6, ground 0x6d7862, sun (-0.48,0.69,-0.53) aligned with key light, colour x1.0" }
+  },
+  "averageLuma": {
+    "garage": { "before": 83.8, "after": 99.3 },
+    "coast": { "before": 102.4, "after": 122.5 },
+    "fields": { "before": 111.2, "after": 130.6 },
+    "summitHigh": { "before": 99.9, "after": 125.9 },
+    "cockpit": { "before": 94.9, "after": 113.0 }
+  },
+  "notes": "Average luma is measured on the full 1440x900 frame from the paired screenshots in this directory. Sunset mood keeps its original exposure and palette. The lighting gate measures clipping only in the centre ROI so white HUD glyphs are not counted as blown highlights."
+}

@@ -55,8 +55,8 @@ function addWaterfall(scene, landscape) {
 export function createWorld(scene) {
   const route = createRoute();
   const landscape = createLandscape(route);
-  const hemisphere = new THREE.HemisphereLight(0xc8d9e4,0x70614c,.72);
-  const sunlight = new THREE.DirectionalLight(0xffebc8,2.7);
+  const hemisphere = new THREE.HemisphereLight(0xd9ebf7,0x8a7a5f,.95);
+  const sunlight = new THREE.DirectionalLight(0xfff1d6,3.15);
   sunlight.name='traveling-sun-key'; sunlight.castShadow=true;
   sunlight.shadow.mapSize.set(2048,2048);
   sunlight.shadow.camera.left=-105; sunlight.shadow.camera.right=105;
@@ -80,13 +80,13 @@ export function createWorld(scene) {
   function setMood(name) {
     const sunset=name==='sunset';
     atmosphere.setMood(name);
-    hemisphere.color.setHex(sunset?0xbfc9e0:0xc8d9e4);
-    hemisphere.groundColor.setHex(sunset?0x71574b:0x70614c);
-    hemisphere.intensity=sunset?.64:.72;
-    sunlight.color.setHex(sunset?0xffbd87:0xffebc8);
-    sunlight.intensity=sunset?2.45:2.7;
+    hemisphere.color.setHex(sunset?0xbfc9e0:0xd9ebf7);
+    hemisphere.groundColor.setHex(sunset?0x71574b:0x8a7a5f);
+    hemisphere.intensity=sunset?.64:.95;
+    sunlight.color.setHex(sunset?0xffbd87:0xfff1d6);
+    sunlight.intensity=sunset?2.45:3.15;
     followFocus(focus);
-    return {name:sunset?'sunset':'day',exposure:sunset?.98:1.03};
+    return {name:sunset?'sunset':'day',exposure:sunset?.98:1.12};
   }
   setMood('day');
   return {

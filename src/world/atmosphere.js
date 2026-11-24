@@ -14,8 +14,8 @@ export function createAtmosphere(scene, landscape) {
   const sunDirection = new THREE.Vector3(-.48, .69, -.53).normalize();
   const uniforms = {
     time: { value: 0 },
-    zenith: { value: new THREE.Color(0x438bc0) }, horizon: { value: new THREE.Color(0xc9dfe0) },
-    sunColor: { value: new THREE.Color(0xffe4b4) }, cloudColor: { value: new THREE.Color(0xf7f0df) },
+    zenith: { value: new THREE.Color(0x3f8fd6) }, horizon: { value: new THREE.Color(0xd2e7f4) },
+    sunColor: { value: new THREE.Color(0xfff0cf) }, cloudColor: { value: new THREE.Color(0xfffbf0) },
     sunDirection: { value: sunDirection }, sunset: { value: 0 },
   };
   const sky = new THREE.Mesh(new THREE.SphereGeometry(8500, 48, 24), new THREE.ShaderMaterial({
@@ -27,15 +27,15 @@ export function createAtmosphere(scene, landscape) {
         vec3 d=normalize(vSkyDirection);float elevation=max(d.y,0.0);
         vec3 color=mix(horizon,zenith,pow(elevation,.48));
         float towardSun=max(dot(d,sunDirection),0.0);
-        color+=sunColor*pow(towardSun,16.)*.13;
+        color+=sunColor*pow(towardSun,16.)*.16;
         color=mix(color,sunColor*1.9,smoothstep(.99935,.99965,towardSun));
         vec2 cloudUV=d.xz/max(.15,d.y+.24)*2.1+vec2(time*.0016,time*.0004);
         float billow=fbm(cloudUV*1.7);
-        float density=smoothstep(.53,.72,billow)*(smoothstep(.02,.16,elevation))*(1.-smoothstep(.66,.95,elevation));
+        float density=smoothstep(.56,.74,billow)*(smoothstep(.02,.16,elevation))*(1.-smoothstep(.66,.95,elevation));
         float lightEdge=fbm(cloudUV*1.7+sunDirection.xz*.18);
-        vec3 cloud=mix(cloudColor*vec3(.68,.76,.82),cloudColor,smoothstep(.43,.68,lightEdge));
+        vec3 cloud=mix(cloudColor*vec3(.80,.86,.90),cloudColor,smoothstep(.43,.68,lightEdge));
         float wisps=smoothstep(.58,.8,fbm(d.xz/max(.1,d.y+.25)*vec2(4.5,20.)+time*.0003))*.13*smoothstep(.1,.35,elevation);
-        color=mix(color,cloud,density*.83);color=mix(color,cloudColor,wisps);
+        color=mix(color,cloud,density*.78);color=mix(color,cloudColor,wisps);
         gl_FragColor=vec4(color,1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -108,12 +108,12 @@ export function createAtmosphere(scene, landscape) {
     });
     waters.push(m); return m;
   }
-  const ocean = new THREE.Mesh(new THREE.PlaneGeometry(19000, 19000).rotateX(-Math.PI / 2), material(0x246c86,0x72b6a4,-2.3,'sea'));
+  const ocean = new THREE.Mesh(new THREE.PlaneGeometry(19000, 19000).rotateX(-Math.PI / 2), material(0x2a7f9e,0x7fc9b2,-2.3,'sea'));
   ocean.position.y = -2.3; ocean.name = 'reflective-coastal-water'; scene.add(ocean);
-  const lake = new THREE.Mesh(new THREE.CircleGeometry(1, 128).rotateX(-Math.PI / 2), material(0x285d69,0x72a89b,landscape.lake.y,'lake'));
+  const lake = new THREE.Mesh(new THREE.CircleGeometry(1, 128).rotateX(-Math.PI / 2), material(0x2e7180,0x7fbfae,landscape.lake.y,'lake'));
   lake.position.set(landscape.lake.x,landscape.lake.y,landscape.lake.z); lake.scale.set(landscape.lake.rx*1.035,1,landscape.lake.rz*1.035);
   lake.name = 'reflective-forest-lake'; scene.add(lake);
-  const river = new THREE.Mesh(riverGeometry(landscape.riverPoints,72),material(0x427b82,0x91c0ad,0,'river'));
+  const river = new THREE.Mesh(riverGeometry(landscape.riverPoints,72),material(0x4a8d95,0x9fd3bd,0,'river'));
   river.name='rippled-valley-river';scene.add(river);
   addLakeShore(scene,landscape);
 
@@ -121,13 +121,13 @@ export function createAtmosphere(scene, landscape) {
     sunDirection,
     setMood(name) {
       const sunset = name === 'sunset';
-      uniforms.zenith.value.setHex(sunset ? 0x566c96 : 0x438bc0);
-      uniforms.horizon.value.setHex(sunset ? 0xe5b18d : 0xc9dfe0);
-      uniforms.sunColor.value.setHex(sunset ? 0xffb980 : 0xffe4b4);
-      uniforms.cloudColor.value.setHex(sunset ? 0xefc8a7 : 0xf7f0df);
+      uniforms.zenith.value.setHex(sunset ? 0x566c96 : 0x3f8fd6);
+      uniforms.horizon.value.setHex(sunset ? 0xe5b18d : 0xd2e7f4);
+      uniforms.sunColor.value.setHex(sunset ? 0xffb980 : 0xfff0cf);
+      uniforms.cloudColor.value.setHex(sunset ? 0xefc8a7 : 0xfffbf0);
       sunDirection.set(sunset ? -.64 : -.48,sunset ? .3 : .69,-.53).normalize();
       scene.background=uniforms.horizon.value.clone();
-      scene.fog = new THREE.Fog(sunset ? 0xb8a3a3 : 0xadc6cf,1050,6100);
+      scene.fog = sunset ? new THREE.Fog(0xb8a3a3,1050,6100) : new THREE.Fog(0xcfe4ec,1500,7500);
     },
     update(time) { uniforms.time.value=time; },
   };
